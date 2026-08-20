@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROD_GDM_PROD_DB — Gas Leak Management Data Catalog</title>
+<style>
+  :root{
+    --bg:#f7f8fa;
+    --panel:#ffffff;
+    --border:#e2e5ea;
+    --text:#1f2430;
+    --text-muted:#5b6270;
+    --accent:#2054c9;
+    --accent-soft:#eaf0fd;
+    --table-badge:#2054c9;
+    --view-badge:#8a5a00;
+    --view-badge-bg:#fdf3e0;
+    --table-badge-bg:#eaf0fd;
+    --chip-bg:#f1f2f5;
+    --chip-text:#454b58;
+    --warn-bg:#fff6e5;
+    --warn-border:#f0d68a;
+    --draft-bg:#fbeeee;
+    --draft-border:#e8b9b9;
+    --draft-text:#8a2f2f;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 20px 64px;}
+  header.page-head{margin-bottom:20px;}
+  header.page-head h1{font-size:1.6rem;margin:0 0 4px;letter-spacing:-0.01em;}
+  header.page-head .subtitle{color:var(--text-muted);font-size:0.95rem;margin:0 0 2px;}
+  header.page-head .meta-line{color:var(--text-muted);font-size:0.82rem;}
+
+  nav.toc{
+    display:flex;flex-wrap:wrap;gap:8px;
+    margin:0 0 20px;
+  }
+  nav.toc a{
+    font-size:0.8rem;
+    color:var(--accent);
+    text-decoration:none;
+    background:var(--accent-soft);
+    padding:6px 12px;
+    border-radius:20px;
+    font-weight:600;
+  }
+  nav.toc a:hover{text-decoration:underline;}
+
+  .callout{
+    background:var(--warn-bg);
+    border:1px solid var(--warn-border);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    margin:20px 0;
+    font-size:0.88rem;
+    color:#5c4a12;
+  }
+  .callout strong{color:#3d3009;}
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin-bottom:20px;
+    scroll-margin-top:16px;
+  }
+  .panel h2{font-size:1.02rem;margin:0 0 12px;}
+  .section-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;
+  }
+  .section-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:24px;height:24px;border-radius:50%;
+    background:var(--accent);color:#fff;
+    font-size:0.78rem;font-weight:700;flex-shrink:0;
+  }
+  .section-head h2{margin:0;font-size:1.1rem;}
+  .draft-tag{
+    font-size:0.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+    background:var(--draft-bg);color:var(--draft-text);border:1px solid var(--draft-border);
+    padding:2px 9px;border-radius:20px;
+  }
+  .section-body p{font-size:0.92rem;margin:0 0 10px;}
+  .section-body p:last-child{margin-bottom:0;}
+  .section-body ul{font-size:0.92rem;margin:0 0 10px;padding-left:20px;}
+  .section-body ul:last-child{margin-bottom:0;}
+  .section-body li{margin-bottom:4px;}
+
+  .layer-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+    margin-top:6px;
+  }
+  .layer-card{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:14px;
+    background:#fbfbfc;
+  }
+  .layer-card.active{border-color:var(--accent);background:var(--accent-soft);}
+  .layer-card h4{margin:0 0 6px;font-size:0.88rem;}
+  .layer-card p{font-size:0.82rem;color:var(--text-muted);margin:0;}
+  .layer-card .layer-status{
+    display:inline-block;margin-top:8px;font-size:0.68rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:20px;
+  }
+  .layer-status.documented{background:var(--table-badge-bg);color:var(--table-badge);}
+  .layer-status.pending{background:var(--draft-bg);color:var(--draft-text);}
+
+  .legend-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:16px;
+  }
+  .legend-grid h3{font-size:0.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin:0 0 8px;}
+  .legend-grid table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+  .legend-grid td{padding:3px 0;vertical-align:top;}
+  .legend-grid td.code{color:var(--accent);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;padding-right:10px;font-weight:600;font-size:0.8rem;}
+  .legend-grid p{font-size:0.85rem;color:var(--text-muted);margin:0;}
+
+  .search-row{
+    display:flex;gap:10px;align-items:center;margin:24px 0 18px;
+    flex-wrap:wrap;
+  }
+  #search{
+    flex:1;min-width:220px;
+    padding:10px 14px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:0.9rem;
+    background:var(--panel);
+  }
+  #search:focus{outline:2px solid var(--accent);outline-offset:-1px;}
+  .count-note{font-size:0.82rem;color:var(--text-muted);white-space:nowrap;}
+
+  .group-title{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--text-muted);
+    margin:32px 0 12px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--border);
+  }
+  .group-title:first-of-type{margin-top:8px;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin-bottom:14px;
+  }
+  .card-head{
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px;
+  }
+  .card-head .name{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:1rem;
+    font-weight:600;
+    color:var(--text);
+  }
+  .badge{
+    font-size:0.68rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    padding:2px 8px;
+    border-radius:20px;
+  }
+  .badge.table{color:var(--table-badge);background:var(--table-badge-bg);}
+  .badge.view{color:var(--view-badge);background:var(--view-badge-bg);}
+  .colcount{font-size:0.78rem;color:var(--text-muted);margin-left:auto;white-space:nowrap;}
+
+  .desc{font-size:0.92rem;color:var(--text);margin:0 0 12px;}
+
+  .meta-rows{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+  .meta-row{display:flex;gap:8px;font-size:0.84rem;}
+  .meta-row .label{color:var(--text-muted);min-width:92px;flex-shrink:0;}
+  .meta-row .value{color:var(--text);}
+  .meta-row .value code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--chip-bg);
+    padding:1px 5px;
+    border-radius:4px;
+    font-size:0.8rem;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{
+    background:var(--chip-bg);
+    color:var(--chip-text);
+    font-size:0.76rem;
+    padding:3px 9px;
+    border-radius:20px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  .empty-state{
+    border:1px dashed var(--draft-border);
+    border-radius:8px;
+    padding:22px;
+    text-align:center;
+    color:var(--draft-text);
+    background:var(--draft-bg);
+    font-size:0.88rem;
+  }
+
+  footer{margin-top:36px;font-size:0.78rem;color:var(--text-muted);text-align:center;}
+
+  .hidden{display:none !important;}
+
+  @media (max-width:600px){
+    .meta-row{flex-direction:column;gap:1px;}
+    .meta-row .label{min-width:0;}
+    .colcount{margin-left:0;}
+  }
+
+  @media print{
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    body{background:#fff;}
+    .wrap{max-width:100%;padding:8px 4px 24px;}
+    nav.toc{display:none;}
+    .search-row{display:none;}
+    #noResults{display:none !important;}
+    .panel, .card{break-inside:avoid;page-break-inside:avoid;}
+    .group-title{break-after:avoid;page-break-after:avoid;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <h1>Leak Product Catalog</h1>
+    <p class="subtitle">Source: <strong>PROD_GDM_PROD_DB</strong> — leak records, work orders, and inspection detail for gas distribution leak management</p>
+    <p class="meta-line">Catalog generated August 20, 2026</p>
+  </header>
+
+  <nav class="toc">
+    <a href="#sec1">1. What is Leak Data</a>
+    <a href="#sec2">2. Application Covered</a>
+    <a href="#sec3">3. Datasets We Have</a>
+    <a href="#sec4">4. Curated</a>
+    <a href="#sec5">5. GDM_RPT</a>
+  </nav>
+
+  <div class="callout">
+    <strong>Status of this page:</strong> sections 1&ndash;3 are drafted from what we've pieced together (table/column names, sample data, and general familiarity with gas-utility leak management) &mdash; not from an official spec. Section 4 is based on a 100-row sample of each Curated object. Section 5 is a placeholder until GDM_RPT sample tables are supplied. Everything tagged <span class="draft-tag">Draft</span> needs a review pass from someone with source-system knowledge before this is treated as an official reference.
+  </div>
+
+  <section class="panel" id="sec1">
+    <div class="section-head">
+      <span class="section-num">1</span>
+      <h2>What is Leak Data</h2>
+      <span class="draft-tag">Draft</span>
+    </div>
+    <div class="section-body">
+      <p>Leak Data is the set of records generated and maintained across the full lifecycle of a gas leak &mdash; from initial discovery through classification, response, repair, and closure. It answers questions like: where and when was a leak found, how severe is it, what work has been done about it, and what is its current status.</p>
+      <p>In practice this covers four things: the leak itself (location, grade, status, cause &mdash; <em>Section 4</em>), the field readings and grading history that justify its classification, the work orders raised against it (emergency response, monitoring, surveillance, repair &mdash; each a distinct order type with its own detail form), and the historical audit trail of every status and grade change. Together these support both day-to-day field operations (dispatch, crew assignment, compliance tracking) and regulatory/backlog reporting (e.g. <code>VW_LEAKS_BACKLOG</code>).</p>
+    </div>
+  </section>
+
+  <section class="panel" id="sec2">
+    <div class="section-head">
+      <span class="section-num">2</span>
+      <h2>What Application is Covered</h2>
+      <span class="draft-tag">Draft</span>
+    </div>
+    <div class="section-body">
+      <p>The leak and work-order tables carry strong signals of an <strong>IBM Maximo</strong>-based work and asset management system as the operational source: work-order status codes such as <code>WAPPR</code> (waiting approval), <code>WSCH</code> (waiting to be scheduled), <code>FLDCOMP</code> (field complete), <code>CLOSE</code>, <code>CAN</code> (cancelled), and <code>ASBUILT</code> all match Maximo's standard status vocabulary, and <code>MAXADMIN</code> appears repeatedly as the system user recording status changes.</p>
+      <p>Field crews appear to capture leak-response and repair detail through structured digital forms (per work-order type &mdash; emergency odor investigation, monitoring, repair, repair observation, surveillance/wall check/recheck), which then land in Maximo as work order records before being extracted into this data mart. Columns like <code>SF_ORDERTYPE</code> and <code>SF_WONUM</code> suggest a Salesforce Field Service (or similar) layer may also be involved upstream of Maximo for field crew dispatch &mdash; this is inferred from the column prefix alone and should be confirmed.</p>
+      <p>Leak and work-order data is extracted from the operational system(s) into <strong>PROD_GDM_PROD_DB</strong> (Gas Distribution Management) on a scheduled refresh, tracked via <code>SOURCE_REFRESH_DT</code> / <code>NGMOD_DT</code> / <code>NGLOADDATE</code> columns throughout the Curated tables.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="sec3">
+    <div class="section-head">
+      <span class="section-num">3</span>
+      <h2>What Datasets Do We Have Right Now</h2>
+      <span class="draft-tag">Draft</span>
+    </div>
+    <div class="section-body">
+      <p>PROD_GDM_PROD_DB is organized in layers, each a step further from the raw source system and closer to business-ready reporting:</p>
+      <div class="layer-grid">
+        <div class="layer-card">
+          <h4>Raw</h4>
+          <p>Data as landed from the source system(s) with minimal transformation. Not yet covered in this catalog &mdash; add sample tables here if this layer should be documented too.</p>
+          <span class="layer-status pending">Not yet documented</span>
+        </div>
+        <div class="layer-card active">
+          <h4>Curated</h4>
+          <p>Cleaned, modeled views and Dynamic Tables (the <code>DT_</code> / <code>VW_</code> objects) &mdash; one row per business entity (leak, work order, reading, etc.), deduplicated and typed, ready for downstream use.</p>
+          <span class="layer-status documented">Documented in Section 4</span>
+        </div>
+        <div class="layer-card">
+          <h4>GDM_RPT</h4>
+          <p>Reporting-layer views built on top of Curated, shaped for direct consumption by dashboards and BI tools rather than general-purpose modeling.</p>
+          <span class="layer-status pending">Awaiting sample tables</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="sec4">
+    <div class="section-head">
+      <span class="section-num">4</span>
+      <h2>Curated &mdash; Description of Each View / Dynamic Table</h2>
+    </div>
+    <div class="section-body">
+      <p>13 objects (1 view, 12 Dynamic Tables), based on a 100-row sample of each.</p>
+    </div>
+
+    <div class="callout">
+      <strong>How these descriptions were produced:</strong> no existing data dictionary or column comments were attached to the source workbook, so every description below was inferred from table/column names, a 100-row sample of each table, and general familiarity with gas-utility leak management and work-management (Maximo-style) data models. Treat this as a first-pass catalog — have someone with source-system knowledge confirm the grain, ownership, and any business-rule details before treating it as an official reference.
+    </div>
+
+    <div class="legend-grid">
+      <div>
+        <h3>Naming convention</h3>
+        <table>
+          <tr><td class="code">VW_</td><td>View — computed/aggregated from underlying tables</td></tr>
+          <tr><td class="code">DT_</td><td>Dynamic Table — a modeled base data table</td></tr>
+          <tr><td class="code">WO_</td><td>Work order (in table names, refers to a work-order subject area)</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>Operating company codes seen in the data (OPCO)</h3>
+        <table>
+          <tr><td class="code">5210</td><td>Niagara Mohawk Power Corp — jurisdiction <code>UNY</code> (Upstate NY)</td></tr>
+          <tr><td class="code">5220</td><td>Brooklyn Union Gas–KEDNY — jurisdiction <code>NYC</code></td></tr>
+          <tr><td class="code">5230</td><td>KeySpan Gas East–KEDLI — jurisdiction <code>LI</code> (Long Island)</td></tr>
+          <tr><td class="code">5330</td><td>Boston Gas Company — jurisdiction <code>MA</code></td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>Leak grade (industry-standard convention)</h3>
+        <p><strong>Grade 1</strong>: hazardous, requires immediate action. <strong>Grade 2 / 2A</strong>: potentially hazardous, requires scheduled repair or periodic monitoring within a defined window. <strong>Grade 3</strong>: non-hazardous at time of detection, re-evaluated on a monitoring cycle. Exact repair/monitoring timelines are set by each jurisdiction's regulator and internal procedure, not shown in this data.</p>
+      </div>
+      <div>
+        <h3>Work order status codes</h3>
+        <p>Status values such as <code>WAPPR</code>, <code>WSCH</code>, <code>FLDCOMP</code>, <code>CLOSE</code>, <code>CAN</code>, <code>ASBUILT</code>, and change-by values like <code>MAXADMIN</code> indicate the leak/work-order tables are sourced from an IBM Maximo-based work-management system, feeding this data mart on a scheduled refresh (see <code>SOURCE_REFRESH_DT</code> / <code>NGMOD_DT</code> columns).</p>
+      </div>
+    </div>
+
+    <div class="search-row">
+      <input id="search" type="text" placeholder="Filter tables by name or keyword…" oninput="filterCards()">
+      <span class="count-note" id="countNote">13 of 13 shown</span>
+    </div>
+
+    <div class="group-title">Core leak records</div>
+
+    <div class="card" data-name="vw_leaks_backlog" data-search="vw_leaks_backlog view backlog jurisdiction grade monthly regulatory reporting open leaks">
+      <div class="card-head">
+        <span class="name">VW_LEAKS_BACKLOG</span>
+        <span class="badge view">View</span>
+        <span class="colcount">10 columns</span>
+      </div>
+      <p class="desc">Monthly count of open, unrepaired leaks ("backlog") by jurisdiction and grade grouping. Used for regulatory backlog reporting and month-over-month trending of outstanding hazardous/potentially-hazardous leaks (Grade 1, 2, 2A) that have not yet been repaired.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per jurisdiction + backlog month/year + grade grouping</span></div>
+        <div class="meta-row"><span class="label">Key columns</span><span class="value"><code>JURISDICTION</code>, <code>BACKLOG YEAR</code>, <code>BACKLOG MONTH</code>, <code>GRADE</code></span></div>
+        <div class="meta-row"><span class="label">Likely source</span><span class="value">Aggregated from DT_LEAKS / DT_LEAK_STATUS_HIST rather than loaded directly</span></div>
+      </div>
+      <div class="chips"><span class="chip">BACKLOG COUNT</span><span class="chip">NGLOADSTATUS</span><span class="chip">NGMODDATE</span></div>
+    </div>
+
+    <div class="card" data-name="dt_leaks" data-search="dt_leaks master leak record status grade priority location address jurisdiction opco cause facility">
+      <div class="card-head">
+        <span class="name">DT_LEAKS</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">69 columns</span>
+      </div>
+      <p class="desc">The master leak record — the central table of the data mart. One row per reported gas leak, carrying its full lifecycle summary: current status and grade (plus grade at receipt, latest, and previous grade), priority, how it was discovered, key dates (found, closed, last/next survey, last/next repair, last/next recheck), location detail (address, city, state, zip, lat/long, nearest cross street, jurisdiction, operating company), and closure/cancellation reasons. Nearly every other table in this catalog links back to a leak through <code>LEAK_ID</code>.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per leak</span></div>
+        <div class="meta-row"><span class="label">Primary key</span><span class="value"><code>LEAK_ID</code></span></div>
+        <div class="meta-row"><span class="label">Joins to</span><span class="value">Nearly all other tables via <code>LEAK_ID</code></span></div>
+      </div>
+      <div class="chips"><span class="chip">STATUS</span><span class="chip">GRADE</span><span class="chip">FOUND_DT</span><span class="chip">CLOSED_DT</span><span class="chip">ADDR / CITY / STATE / ZIP_CD</span><span class="chip">LATITUDE / LONGITUDE</span><span class="chip">LEAK_CAUSE</span><span class="chip">JURISDICTION</span></div>
+    </div>
+
+    <div class="card" data-name="dt_leak_extent" data-search="dt_leak_extent size length width square feet inspection repair strategy">
+      <div class="card-head">
+        <span class="name">DT_LEAK_EXTENT</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">15 columns</span>
+      </div>
+      <p class="desc">Physical size and repair-strategy assessment for a leak, as measured by an inspector during a survey — length, width, computed square footage, and an extent classification code (e.g. service line). Supports repair prioritization and cost/method planning.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per leak-extent assessment</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>LEAK_EXTENT_ID</code> (row id), <code>LEAK_ID</code>, <code>LEAK_EXTENT_WO</code> (linking work order)</span></div>
+      </div>
+      <div class="chips"><span class="chip">LENGTH / WIDTH / SQUARE_FT</span><span class="chip">LEAK_EXTENT_CLASS</span><span class="chip">INSPR_NAME</span><span class="chip">REPAIR_STRATEGY_CD</span><span class="chip">REPAIR_DUE_DT</span></div>
+    </div>
+
+    <div class="card" data-name="dt_leak_grade_hist" data-search="dt_leak_grade_hist history grade change audit inspector">
+      <div class="card-head">
+        <span class="name">DT_LEAK_GRADE_HIST</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">11 columns</span>
+      </div>
+      <p class="desc">Audit trail of grade classification changes for a leak over its life (e.g. re-graded from a 2 to a 1 after a follow-up inspection). Each row is one grading event, with the grade assigned, the inspector, inspection date, whether the change was acknowledged, and free-text remarks.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per grade-change / grading event</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>LEAK_ID</code>, <code>LEAK_READING_ID</code>, optional <code>WO_NUM</code></span></div>
+      </div>
+      <div class="chips"><span class="chip">GRADE</span><span class="chip">INSPN_DT</span><span class="chip">GRADE_CHG_ACK</span><span class="chip">REMARKS</span></div>
+    </div>
+
+    <div class="card" data-name="dt_leak_reading" data-search="dt_leak_reading gas percent measurement survey inspection field reading">
+      <div class="card-head">
+        <span class="name">DT_LEAK_READING</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">28 columns</span>
+      </div>
+      <p class="desc">Individual field gas-concentration readings taken while surveying a leak — the raw measurements (e.g. "Gas %") behind a grading decision, tagged with where the reading was taken (inside a structure, curb, lawn/sidewalk/street, distance bands) and by whom.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per individual gas reading taken during a survey</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>LEAK_READING_ID</code>, <code>LEAK_ID</code>, optional <code>WO_NUM</code></span></div>
+      </div>
+      <div class="chips"><span class="chip">CATEGORY / CODE</span><span class="chip">MEASUREMENT / VALUE</span><span class="chip">INSPR_NAME</span><span class="chip">INSPN_DT</span><span class="chip">INSIDE_READING_IND</span></div>
+    </div>
+
+    <div class="card" data-name="dt_leak_status_hist" data-search="dt_leak_status_hist limit history status change open closed repaired pndreview audit">
+      <div class="card-head">
+        <span class="name">DT_LEAK_STATUS_HIST</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">6 columns</span>
+      </div>
+      <p class="desc">Audit trail of leak status transitions over time (e.g. <code>OPEN</code> → <code>PNDREVIEW</code> → <code>REPAIRED</code> → <code>CLOSED</code>), with the date of each change, who/what made it, and a memo. This is what a leak's full lifecycle timeline is reconstructed from.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per status-change event</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>LEAK_ID</code>, <code>STATUS_DT</code></span></div>
+        <div class="meta-row"><span class="label">Note</span><span class="value">Sheet was named "DT_LEAK_STATUS_HIST LIMIT" in the source workbook — the trailing "LIMIT" looks like an artifact of the SQL used to pull the sample, not part of the real table name.</span></div>
+      </div>
+      <div class="chips"><span class="chip">STATUS</span><span class="chip">STATUS_DT</span><span class="chip">CHG_BY</span><span class="chip">MEMO</span></div>
+    </div>
+
+    <div class="group-title">Work orders</div>
+
+    <div class="card" data-name="dt_leak_workorders" data-search="dt_leak_workorders master work order maximo crew cost schedule permit repair capital">
+      <div class="card-head">
+        <span class="name">DT_LEAK_WORKORDERS</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">131 columns</span>
+      </div>
+      <p class="desc">The master work-order table for the leak-management work-management system (Maximo-style). One row per work order — covering not just leak repairs but the full range of related order types seen in the sample (street opening permits, splits/replacements, premarks, etc.). Carries scheduling (target/actual/scheduled start-finish dates), crew and supervisor assignment, cost (GL account, cost center, estimated material/tool cost), funding/capital project linkage, and GIS/mapping completion tracking. This is the broadest work-order table; the <code>DT_WO_LEAK_*</code> tables below hold the type-specific detail for particular kinds of leak work orders.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per work order</span></div>
+        <div class="meta-row"><span class="label">Primary key</span><span class="value"><code>WO_NUM</code> / <code>WO_ID</code></span></div>
+        <div class="meta-row"><span class="label">Joins to</span><span class="value"><code>DT_LEAKS</code> via <code>LEAK_ID</code> (when the WO is leak-related); <code>DT_LEAK_WO_STATUS_HIST</code> and the <code>DT_WO_LEAK_*</code> detail tables via <code>WO_NUM</code></span></div>
+      </div>
+      <div class="chips"><span class="chip">WO_STATUS</span><span class="chip">WORK_TYPE</span><span class="chip">CREW / SUPERVISOR</span><span class="chip">SCHED_START_DT / SCHED_FINISH_DT</span><span class="chip">OPCO</span><span class="chip">FUNDING_PROJECT</span></div>
+    </div>
+
+    <div class="card" data-name="dt_leak_wo_status_hist" data-search="dt_leak_wo_status_hist work order status history audit wappr wsch fldcomp">
+      <div class="card-head">
+        <span class="name">DT_LEAK_WO_STATUS_HIST</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">9 columns</span>
+      </div>
+      <p class="desc">Audit trail of work-order status transitions (e.g. <code>WAPPR</code> → <code>WSCH</code> → <code>FLDCOMP</code>), analogous to <code>DT_LEAK_STATUS_HIST</code> but for work orders rather than leaks. Includes reason code, who made the change and when, and a memo.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per work-order status-change event</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>WO_NUM</code>, <code>STATUS_DT</code></span></div>
+      </div>
+      <div class="chips"><span class="chip">STATUS</span><span class="chip">REASON_CD</span><span class="chip">CHANGED_BY / CHANGED_DT</span><span class="chip">MEMO</span></div>
+    </div>
+
+    <div class="group-title">Work order detail, by order type</div>
+
+    <div class="card" data-name="dt_wo_leak_emergency_odor_inves" data-search="dt_wo_leak_emergency_odor_inves emergency odor investigation gas leak safety evacuation carbon monoxide">
+      <div class="card-head">
+        <span class="name">DT_WO_LEAK_EMERGENCY_ODOR_INVES</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">164 columns</span>
+      </div>
+      <p class="desc">Detail form data for emergency odor-of-gas investigation work orders (order type "Emg (G) - Odor"). This is the field crew's safety checklist for an emergency response: odor strength and location, gas detection method and readings, evacuation and hospitalization counts, appliance light-up and CO (carbon monoxide) investigation results, warning tags issued, meter/curb-box/regulator condition, and building/wall-check findings. Very wide because it captures the entire multi-section emergency-response form as flat columns.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per emergency odor-investigation work order (repeats per form section in the sample)</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>WO_NUM</code>, <code>LEAK_ID</code> (often null until a leak is confirmed)</span></div>
+      </div>
+      <div class="chips"><span class="chip">ODOR_STRENGTH / ODOR_LOC</span><span class="chip">ACTION_TAKEN</span><span class="chip">CO_FOUND_IND</span><span class="chip">EVACUATION_IND</span><span class="chip">WARN_TAG_ISSUED_IND</span><span class="chip">FATALITIES_IND</span></div>
+    </div>
+
+    <div class="card" data-name="dt_wo_leak_monitoring" data-search="dt_wo_leak_monitoring periodic monitoring visit grade 3 scheduled">
+      <div class="card-head">
+        <span class="name">DT_WO_LEAK_MONITORING</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">39 columns</span>
+      </div>
+      <p class="desc">Detail table for "Leak - Monitoring" work orders — the recurring, scheduled visits used to keep watch on a non-hazardous leak (typically Grade 3) that doesn't yet require repair. Holds the work-order header fields relevant to scheduling and completing a monitoring visit (crew, dates, status) rather than a technical inspection form.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per leak-monitoring work order</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>WO_NUM</code>, <code>LEAK_ID</code></span></div>
+      </div>
+      <div class="chips"><span class="chip">WO_STATUS</span><span class="chip">SCHED_START_DT / SCHED_FINISH_DT</span><span class="chip">CREW_WORK_GRP</span><span class="chip">SF_ORDERTYPE</span></div>
+    </div>
+
+    <div class="card" data-name="dt_wo_leak_repair" data-search="dt_wo_leak_repair repair job crew cost funding closed asbuilt cancelled">
+      <div class="card-head">
+        <span class="name">DT_WO_LEAK_REPAIR</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">54 columns</span>
+      </div>
+      <p class="desc">Detail table for "Leak - Repair" work orders — the job that physically fixes a leak. Carries repair scheduling, cost center and funding project, crew/vendor assignment, and a task/parent/operation structure for repairs that are broken into multiple steps. Status values seen include <code>CLOSE</code>, <code>ASBUILT</code>, <code>CAN</code> (cancelled), and <code>SPVCOMP</code> (supervisor-complete).</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per leak-repair work order (or task, when a repair is split into sub-tasks)</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>WO_NUM</code>, <code>LEAK_ID</code>, <code>PARENT</code>/<code>TASK</code> for sub-tasks</span></div>
+      </div>
+      <div class="chips"><span class="chip">WO_STATUS</span><span class="chip">LEAK_GRADE_AT_REPAIR</span><span class="chip">FUNDING_PROJECT</span><span class="chip">COST_CENTER</span><span class="chip">CONSTR_COMPLETE_DT</span></div>
+    </div>
+
+    <div class="card" data-name="dt_wo_leak_repair_observation" data-search="dt_wo_leak_repair_observation pipe material diameter pressure test soil coating anode excavation damage">
+      <div class="card-head">
+        <span class="name">DT_WO_LEAK_REPAIR_OBSERVATION</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">225 columns</span>
+      </div>
+      <p class="desc">The most detailed table in the mart — the technical field-inspection record captured while a repair crew is on site. Covers pipe/facility characteristics (material, diameter, depth, coating condition and type), soil conditions, pressure testing (medium, equipment, pass/fail, pressure), excavation and third-party damage details, cathodic protection (anodes, rectifiers), meter set and service-line work, and pipe abandonment segments. Reflects PHMSA/engineering-compliance-style repair documentation flattened into one very wide row per observation.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per repair observation/section recorded against a work order (a single repair WO can have several rows — one per pipe segment, test, or form section)</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>WO_NUM</code>, <code>LEAK_ID</code>, <code>SECTION</code>, <code>SEQUENCE_NUM</code></span></div>
+      </div>
+      <div class="chips"><span class="chip">MATERIAL_REPAIRED</span><span class="chip">LEAK_CAUSE</span><span class="chip">PRESSURE_TEST_PASS_IND</span><span class="chip">DAMAGE_STATE / DAMAGE_CITY</span><span class="chip">ABANDONED_PIPE_MATERIAL</span></div>
+    </div>
+
+    <div class="card" data-name="dt_wo_leak_surv_wallcheck_reche" data-search="dt_wo_leak_surv_wallcheck_reche surveillance wall check recheck periodic grade 2 2a 3">
+      <div class="card-head">
+        <span class="name">DT_WO_LEAK_SURV_WALLCHECK_RECHE</span>
+        <span class="badge table">Table</span>
+        <span class="colcount">40 columns</span>
+      </div>
+      <p class="desc">Detail table combining three related, recurring inspection work-order subtypes seen in <code>SF_ORDERTYPE</code>: periodic "Leak Surveillance – Grade 2, 2A, 3" visits, "Wall Check" inspections (checking building walls near a leak for gas migration), and "Leak Recheck" follow-ups. Holds work-order-level scheduling and status fields common to all three, rather than a technical observation form.</p>
+      <div class="meta-rows">
+        <div class="meta-row"><span class="label">Grain</span><span class="value">One row per surveillance / wall-check / recheck work order</span></div>
+        <div class="meta-row"><span class="label">Keys</span><span class="value"><code>WO_NUM</code>, <code>LEAK_ID</code>, <code>SF_ORDERTYPE</code> (distinguishes the three subtypes)</span></div>
+      </div>
+      <div class="chips"><span class="chip">SF_ORDERTYPE</span><span class="chip">WORK_TYPE</span><span class="chip">WO_STATUS</span><span class="chip">SCHED_START_DT / ACTUAL_FINISH_DT</span></div>
+    </div>
+
+    <p id="noResults" class="hidden" style="text-align:center;color:var(--text-muted);padding:30px 0;">No tables match your search.</p>
+  </section>
+
+  <section class="panel" id="sec5">
+    <div class="section-head">
+      <span class="section-num">5</span>
+      <h2>GDM_RPT &mdash; Description of View</h2>
+      <span class="draft-tag">Draft</span>
+    </div>
+    <div class="section-body">
+      <div class="empty-state">
+        Waiting on sample tables from the GDM_RPT schema. Send them over the same way as the Curated workbook and I'll add a card per view here, matching the format used in Section 4.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Generated from a 100-row sample export of each table/view in PROD_GDM_PROD_DB. Sections 1–3 and 5 are drafted/placeholder pending review; Section 4 descriptions are inferred, not sourced from an authoritative data dictionary — verify all of it before publishing as official documentation.
+  </footer>
+
+</div>
+
+<script>
+function filterCards(){
+  var q = document.getElementById('search').value.trim().toLowerCase();
+  var cards = document.querySelectorAll('.card');
+  var groups = document.querySelectorAll('.group-title');
+  var shown = 0;
+  cards.forEach(function(c){
+    var hay = (c.getAttribute('data-search') || '') + ' ' + (c.getAttribute('data-name') || '');
+    var match = q === '' || hay.indexOf(q) !== -1;
+    c.classList.toggle('hidden', !match);
+    if(match) shown++;
+  });
+  // hide group titles with no visible cards under them
+  groups.forEach(function(g){
+    var el = g.nextElementSibling;
+    var anyVisible = false;
+    while(el && !el.classList.contains('group-title')){
+      if(el.classList.contains('card') && !el.classList.contains('hidden')) anyVisible = true;
+      el = el.nextElementSibling;
+    }
+    g.classList.toggle('hidden', !anyVisible);
+  });
+  document.getElementById('countNote').textContent = shown + ' of ' + cards.length + ' shown';
+  document.getElementById('noResults').classList.toggle('hidden', shown !== 0);
+}
+</script>
+</body>
+</html>
