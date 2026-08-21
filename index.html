@@ -473,6 +473,32 @@ WHERE l.STATUS &lt;&gt; 'CLOSED';">Copy</button><code><span class="sql-kw">SELEC
             <p class="pill-note">Before using this data in anything official, read the draft caveats on the <button class="obj-link" data-goview="overview" style="margin:0">Overview</button> page.</p>
           </div>
         </div>
+
+        <div class="card pad prose" style="margin-top:16px">
+          <h3 class="section-title">Querying in Snowflake — three things to know</h3>
+          <ul>
+            <li><strong>Use fully qualified names</strong> if the database isn't set in your session: <span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB.&lt;schema&gt;.DT_LEAKS</span>. Check the schema name in Snowsight's object browser.</li>
+            <li><strong>Quote column names that contain spaces.</strong> Some columns in <span class="mono" style="font-size:.85em">VW_LEAKS_BACKLOG</span> (like <span class="mono" style="font-size:.85em">"BACKLOG YEAR"</span>) need double quotes, written exactly as-is, or the query errors.</li>
+            <li><strong>Freshness is automatic.</strong> The <span class="mono" style="font-size:.85em">DT_</span> objects are Dynamic Tables that refresh on a schedule — check <span class="mono" style="font-size:.85em">SOURCE_REFRESH_DT</span> in a table if you need to confirm how current a row is.</li>
+          </ul>
+          <p style="margin-top:12px"><strong>Want the full column dictionary?</strong> This catalog highlights key columns only. Run this in Snowsight to list every column, type, and comment for all 13 objects — and if the team maintains <span class="mono" style="font-size:.85em">COMMENT</span> descriptions in Snowflake, they'll appear here too:</p>
+          <div class="sql-block"><button class="sql-copy" data-copytext="SELECT TABLE_NAME, ORDINAL_POSITION, COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COMMENT
+FROM PROD_GDM_PROD_DB.INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME IN (
+  'DT_LEAKS','VW_LEAKS_BACKLOG','DT_LEAK_EXTENT','DT_LEAK_GRADE_HIST',
+  'DT_LEAK_READING','DT_LEAK_STATUS_HIST','DT_LEAK_WORKORDERS','DT_LEAK_WO_STATUS_HIST',
+  'DT_WO_LEAK_EMERGENCY_ODOR_INVES','DT_WO_LEAK_MONITORING','DT_WO_LEAK_REPAIR',
+  'DT_WO_LEAK_REPAIR_OBSERVATION','DT_WO_LEAK_SURV_WALLCHECK_RECHE')
+ORDER BY TABLE_NAME, ORDINAL_POSITION;">Copy</button><code><span class="sql-kw">SELECT</span> TABLE_NAME, ORDINAL_POSITION, COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COMMENT
+<span class="sql-kw">FROM</span> PROD_GDM_PROD_DB.INFORMATION_SCHEMA.COLUMNS
+<span class="sql-kw">WHERE</span> TABLE_NAME <span class="sql-kw">IN</span> (
+  'DT_LEAKS','VW_LEAKS_BACKLOG','DT_LEAK_EXTENT','DT_LEAK_GRADE_HIST',
+  'DT_LEAK_READING','DT_LEAK_STATUS_HIST','DT_LEAK_WORKORDERS','DT_LEAK_WO_STATUS_HIST',
+  'DT_WO_LEAK_EMERGENCY_ODOR_INVES','DT_WO_LEAK_MONITORING','DT_WO_LEAK_REPAIR',
+  'DT_WO_LEAK_REPAIR_OBSERVATION','DT_WO_LEAK_SURV_WALLCHECK_RECHE')
+<span class="sql-kw">ORDER BY</span> TABLE_NAME, ORDINAL_POSITION;</code></div>
+          <div class="sql-caveat">Read-only metadata query — safe to run with any role that can see the database.</div>
+        </div>
       </section>
 
       <!-- ======== OVERVIEW ======== -->
@@ -520,6 +546,8 @@ WHERE l.STATUS &lt;&gt; 'CLOSED';">Copy</button><code><span class="sql-kw">SELEC
           <div class="card pad prose">
             <h3 class="section-title">Source systems <span class="draft-tag">Draft</span></h3>
             <dl class="kv">
+              <dt>PLATFORM</dt>
+              <dd><strong>Snowflake</strong> — the mart is built as Snowflake Dynamic Tables and views inside <span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB</span>. Dynamic Tables refresh themselves automatically from their source on a schedule (their "target lag"), so the data stays current without manual loads.</dd>
               <dt>OPERATIONAL</dt>
               <dd><strong>IBM Maximo</strong> work & asset management — status codes (<span class="mono" style="font-size:.85em">WAPPR, WSCH, FLDCOMP, CLOSE, CAN, ASBUILT</span>) and the <span class="mono" style="font-size:.85em">MAXADMIN</span> system user match Maximo's standard vocabulary.</dd>
               <dt>FIELD LAYER</dt>
@@ -600,7 +628,7 @@ WHERE l.STATUS &lt;&gt; 'CLOSED';">Copy</button><code><span class="sql-kw">SELEC
           <div class="layer hero">
             <h3>Curated</h3>
             <div class="l-sub">DT_ / VW_ OBJECTS</div>
-            <p>Cleaned, modeled views and Dynamic Tables — one row per business entity (leak, work order, reading), deduplicated and typed, ready for downstream use. This catalog's main coverage.</p>
+            <p>Cleaned, modeled views and Snowflake Dynamic Tables — one row per business entity (leak, work order, reading), deduplicated and typed, auto-refreshing on a schedule, ready for downstream use. This catalog's main coverage.</p>
             <span class="status blue">13 objects documented</span>
           </div>
           <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></div>
@@ -629,7 +657,7 @@ WHERE l.STATUS &lt;&gt; 'CLOSED';">Copy</button><code><span class="sql-kw">SELEC
             <h3>Naming convention</h3>
             <table class="ref-table">
               <tr><td class="code">VW_</td><td>View — computed/aggregated from underlying tables</td></tr>
-              <tr><td class="code">DT_</td><td>Dynamic Table — a modeled base data table</td></tr>
+              <tr><td class="code">DT_</td><td>Snowflake Dynamic Table — a table that automatically refreshes itself from its source query on a schedule</td></tr>
               <tr><td class="code">WO_</td><td>Work order — refers to a work-order subject area in table names</td></tr>
             </table>
           </div>
@@ -669,7 +697,8 @@ WHERE l.STATUS &lt;&gt; 'CLOSED';">Copy</button><code><span class="sql-kw">SELEC
             <h3>Glossary — plain-English terms for newcomers</h3>
             <dl class="gloss">
               <dt>Grain</dt><dd>What one row in a table represents (one leak, one reading, one status change). Always check the grain before counting or joining.</dd>
-              <dt>Dynamic Table (DT_)</dt><dd>A base data table that refreshes automatically from the source system on a schedule.</dd>
+              <dt>Dynamic Table (DT_)</dt><dd>A Snowflake table that refreshes itself automatically from its source query on a schedule — no manual loading. Its refresh frequency is called the "target lag."</dd>
+              <dt>Quoted identifiers</dt><dd>A Snowflake rule: column names containing spaces (like "BACKLOG YEAR" in the backlog view) must be wrapped in double quotes in SQL, exactly as written, or the query fails.</dd>
               <dt>View (VW_)</dt><dd>A computed result built from other tables — e.g. an aggregation like the monthly backlog counts.</dd>
               <dt>Leak grade</dt><dd>The severity classification of a leak: Grade 1 (hazardous, act immediately), Grade 2/2A (potentially hazardous, scheduled), Grade 3 (non-hazardous, monitored).</dd>
               <dt>Work order (WO)</dt><dd>A dispatched job — an emergency response, a monitoring visit, a repair, or an inspection. Each has a type-specific detail table.</dd>
@@ -711,7 +740,8 @@ const DATASETS = [
     desc:"Monthly count of open, unrepaired leaks (\"backlog\") by jurisdiction and grade grouping. Used for regulatory backlog reporting and month-over-month trending of outstanding hazardous / potentially-hazardous leaks (Grade 1, 2, 2A) that have not yet been repaired.",
     grain:"One row per jurisdiction + backlog month/year + grade grouping",
     keys:"JURISDICTION, BACKLOG YEAR, BACKLOG MONTH, GRADE · likely aggregated from DT_LEAKS / DT_LEAK_STATUS_HIST rather than loaded directly",
-    columns:["BACKLOG COUNT","NGLOADSTATUS","NGMODDATE"]
+    columns:["BACKLOG COUNT","NGLOADSTATUS","NGMODDATE"],
+    note:"Snowflake tip: several column names here contain spaces (e.g. \"BACKLOG YEAR\") and must be wrapped in double quotes, exactly as written, when queried."
   },
   {
     name:"DT_LEAK_EXTENT", type:"Table", cols:15, group:"Core leak records", stages:["grade"],
