@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leak Data Catalog — PROD_GDM_PROD_DB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0c1524; --ink-2:#111d31;
+  --bg:#f3f5f9; --panel:#ffffff;
+  --border:#e3e7ee; --border-strong:#cdd4df;
+  --text:#17202f; --muted:#5c6675; --faint:#8b93a3;
+  --flame:#2e7cf6; --flame-deep:#1d5fd0; --flame-soft:#e9f1fe; --cyan:#22b8cf;
+  --g1:#e5484d; --g1-bg:#fdecec;
+  --g2:#d98a06; --g2-bg:#fdf3df;
+  --g3:#2f9e63; --g3-bg:#e8f6ee;
+  --amber-bg:#fff8e8; --amber-bd:#f0dda4; --amber-tx:#7a5c0f;
+  --view:#8a5a00; --view-bg:#fdf3e0;
+  --table:#1d5fd0; --table-bg:#e9f1fe;
+  --radius:14px; --radius-sm:9px;
+  --shadow:0 1px 2px rgba(15,23,42,.05), 0 8px 24px -12px rgba(15,23,42,.12);
+  --sidebar-w:250px;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; font-family:var(--font-body); background:var(--bg); color:var(--text); line-height:1.55; font-size:15px; -webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+a{color:var(--flame)}
+mark{background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px}
+:focus-visible{outline:2px solid var(--flame); outline-offset:2px; border-radius:4px}
+
+/* ---------- App shell ---------- */
+.app{display:flex; height:100dvh; overflow:hidden}
+.sidebar{width:var(--sidebar-w); flex-shrink:0; background:linear-gradient(180deg,var(--ink) 0%, var(--ink-2) 100%); color:#dbe3f0; display:flex; flex-direction:column; padding:22px 14px 16px}
+.brand{display:flex; align-items:center; gap:11px; padding:0 8px 20px}
+.flame-mark{width:38px;height:38px;border-radius:11px;flex-shrink:0; background:linear-gradient(140deg,var(--flame) 10%, var(--cyan) 95%); display:flex;align-items:center;justify-content:center; box-shadow:0 4px 14px -4px rgba(46,124,246,.65)}
+.flame-mark svg{width:20px;height:20px}
+.brand-name{font-family:var(--font-display); font-weight:700; font-size:1.02rem; line-height:1.15; color:#fff}
+.brand-db{font-family:var(--font-mono); font-size:.62rem; color:#7f8ca3; letter-spacing:.04em; margin-top:2px}
+.nav{display:flex; flex-direction:column; gap:3px; margin-top:4px}
+.nav button{display:flex; align-items:center; gap:11px; width:100%; text-align:left; background:none; border:0; color:#aab6c9; font-size:.88rem; font-weight:500; padding:10px 12px; border-radius:10px; cursor:pointer; transition:background .15s,color .15s}
+.nav button svg{width:17px;height:17px;flex-shrink:0;opacity:.85}
+.nav button:hover{background:rgba(255,255,255,.06); color:#fff}
+.nav button.active{background:linear-gradient(90deg,rgba(46,124,246,.28),rgba(34,184,207,.10)); color:#fff}
+.nav .count{margin-left:auto; font-family:var(--font-mono); font-size:.66rem; background:rgba(255,255,255,.1); padding:1px 7px; border-radius:20px; color:#c4cede}
+.side-foot{margin-top:auto; padding:14px 10px 0; border-top:1px solid rgba(255,255,255,.08); font-size:.7rem; color:#7f8ca3; line-height:1.6}
+.side-foot .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--g2);margin-right:6px;vertical-align:1px}
+.side-foot kbd{font-family:var(--font-mono); font-size:.62rem; background:rgba(255,255,255,.1); border-radius:4px; padding:1px 5px; color:#c4cede}
+
+.main{flex:1; display:flex; flex-direction:column; min-width:0}
+.topbar{display:flex; align-items:center; gap:14px; padding:14px 26px; background:rgba(255,255,255,.85); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); flex-shrink:0}
+.topbar h1{font-family:var(--font-display); font-size:1.06rem; font-weight:600; margin:0}
+.searchbox{margin-left:auto; position:relative; width:min(340px,40vw)}
+.searchbox svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--faint); pointer-events:none}
+.searchbox input{width:100%; padding:8px 56px 8px 34px; border:1px solid var(--border-strong); border-radius:10px; font:inherit; font-size:.86rem; background:#fff; color:var(--text)}
+.searchbox input::placeholder{color:var(--faint)}
+.searchbox .kbd-hint{position:absolute; right:9px; top:50%; transform:translateY(-50%); font-family:var(--font-mono); font-size:.62rem; color:var(--faint); background:#f1f3f7; border:1px solid var(--border); border-radius:5px; padding:1px 6px; pointer-events:none}
+.content{flex:1; overflow-y:auto; padding:26px 28px 60px; scroll-behavior:smooth}
+.view{display:none; max-width:1080px; margin:0 auto; animation:fade .25s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+@media (prefers-reduced-motion:reduce){ .view{animation:none} *{transition:none!important; animation:none!important} }
+
+/* ---------- Shared ---------- */
+.eyebrow{font-family:var(--font-mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--flame-deep); font-weight:600}
+.h-display{font-family:var(--font-display); font-weight:700; letter-spacing:-.02em; margin:6px 0 8px; font-size:1.7rem; line-height:1.2}
+.lede{color:var(--muted); font-size:.96rem; max-width:70ch; margin:0}
+.card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+.pad{padding:20px 22px}
+.section-title{font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin:0 0 4px; display:flex; align-items:center; gap:9px; flex-wrap:wrap}
+.draft-tag{font-size:.6rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; background:var(--amber-bg); color:var(--amber-tx); border:1px solid var(--amber-bd); padding:2px 8px; border-radius:20px}
+.mono{font-family:var(--font-mono)}
+.chip{display:inline-block; font-family:var(--font-mono); font-size:.72rem; background:#f1f3f7; border:1px solid var(--border); color:#3d4657; padding:3px 9px; border-radius:7px; margin:0 6px 6px 0}
+.pill-note{font-size:.8rem; color:var(--muted)}
+.banner{display:flex; gap:10px; align-items:flex-start; background:var(--amber-bg); border:1px solid var(--amber-bd); color:var(--amber-tx); border-radius:var(--radius-sm); padding:11px 14px; font-size:.82rem; margin-bottom:22px}
+.banner svg{width:16px;height:16px;flex-shrink:0;margin-top:2px}
+.banner strong{color:#5c440a}
+
+/* ---------- Overview ---------- */
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:22px 0 26px}
+.kpi{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:15px 17px; box-shadow:var(--shadow)}
+.kpi .num{font-family:var(--font-display); font-size:1.65rem; font-weight:700; letter-spacing:-.02em; line-height:1.1; background:linear-gradient(120deg,var(--flame-deep),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; font-variant-numeric:tabular-nums}
+.kpi .lbl{font-size:.74rem; color:var(--muted); margin-top:3px; font-weight:500}
+
+.lifecycle{margin:0 0 26px}
+.lifecycle-head{display:flex; align-items:baseline; gap:10px; margin-bottom:12px; flex-wrap:wrap}
+.lifecycle-head p{margin:0; font-size:.82rem; color:var(--muted)}
+.stages{display:grid; grid-template-columns:repeat(5,1fr); position:relative}
+.stage{position:relative; background:var(--panel); border:1px solid var(--border); border-left:0; padding:14px 14px 13px; cursor:pointer; text-align:left; transition:background .15s}
+.stage:first-child{border-left:1px solid var(--border); border-radius:var(--radius) 0 0 var(--radius)}
+.stage:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.stage:hover{background:var(--flame-soft)}
+.stage.sel{background:var(--flame-soft); box-shadow:inset 0 -3px 0 var(--flame)}
+.stage .s-num{font-family:var(--font-mono); font-size:.62rem; color:var(--faint); letter-spacing:.08em}
+.stage .s-name{font-family:var(--font-display); font-weight:600; font-size:.9rem; margin:2px 0 3px}
+.stage .s-desc{font-size:.72rem; color:var(--muted); line-height:1.45}
+.stage .s-count{position:absolute; top:11px; right:11px; font-family:var(--font-mono); font-size:.64rem; background:var(--table-bg); color:var(--table); border-radius:20px; padding:1px 7px; font-weight:600}
+.stage-detail{margin-top:12px; display:none}
+.stage-detail.show{display:block}
+.stage-detail .card{padding:14px 16px}
+.stage-detail h4{margin:0 0 8px; font-size:.82rem; font-family:var(--font-display)}
+.obj-link{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:.74rem; background:#f6f8fb; border:1px solid var(--border); border-radius:8px; padding:5px 10px; margin:0 7px 7px 0; cursor:pointer; color:var(--text); transition:border-color .15s, background .15s}
+.obj-link:hover{border-color:var(--flame); background:var(--flame-soft)}
+
+.two-col{display:grid; grid-template-columns:1.35fr 1fr; gap:16px; margin-bottom:16px}
+.prose p{font-size:.9rem; margin:0 0 10px; color:#232c3b}
+.prose p:last-child{margin-bottom:0}
+.prose ul{font-size:.9rem; margin:0 0 10px; padding-left:19px}
+.prose li{margin-bottom:5px}
+.kv{display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:.83rem}
+.kv dt{font-family:var(--font-mono); font-size:.72rem; color:var(--faint); padding-top:2px}
+.kv dd{margin:0}
+
+/* ---------- Data model map ---------- */
+.map-wrap{margin-top:20px; overflow-x:auto; -webkit-overflow-scrolling:touch}
+.map-card{padding:10px 12px 6px; min-width:720px}
+#er-map{width:100%; height:auto; display:block}
+.er-edge{stroke:#c3cbd8; stroke-width:1.6; fill:none; transition:stroke .15s, opacity .15s}
+.er-edge.derived{stroke-dasharray:5 5}
+.er-edge-label{font-family:var(--font-mono); font-size:10px; fill:#8b93a3; transition:opacity .15s}
+.er-node{cursor:pointer}
+.er-node rect{fill:#fff; stroke:var(--border-strong); stroke-width:1.2; rx:9; transition:stroke .15s, filter .15s}
+.er-node.hub rect{stroke:var(--flame); stroke-width:1.8; fill:var(--flame-soft)}
+.er-node text{pointer-events:none}
+.er-name{font-family:var(--font-mono); font-size:10.5px; font-weight:600; fill:#17202f}
+.er-cols{font-family:var(--font-mono); font-size:9px; fill:#8b93a3}
+.er-node:hover rect{stroke:var(--flame); filter:drop-shadow(0 3px 8px rgba(46,124,246,.35))}
+#er-map.focus .er-node,#er-map.focus .er-edge,#er-map.focus .er-edge-label{opacity:.18}
+#er-map.focus .er-node.lit,#er-map.focus .er-edge.lit,#er-map.focus .er-edge-label.lit{opacity:1}
+.map-legend{display:flex; gap:18px; flex-wrap:wrap; font-size:.72rem; color:var(--muted); padding:8px 6px 6px}
+.map-legend span{display:inline-flex; align-items:center; gap:6px}
+.leg-line{display:inline-block; width:26px; height:0; border-top:2px solid #c3cbd8}
+.leg-line.dash{border-top-style:dashed}
+.leg-box{display:inline-block; width:16px; height:11px; border:1.5px solid var(--flame); background:var(--flame-soft); border-radius:3px}
+
+/* ---------- Architecture ---------- */
+.layers{display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:10px; align-items:stretch; margin:20px 0 24px}
+.layer{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); display:flex; flex-direction:column}
+.layer h3{font-family:var(--font-display); margin:0 0 2px; font-size:1rem}
+.layer .l-sub{font-family:var(--font-mono); font-size:.64rem; color:var(--faint); letter-spacing:.06em; margin-bottom:9px}
+.layer p{font-size:.8rem; color:var(--muted); margin:0 0 12px; flex:1}
+.layer .status{font-size:.68rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; border-radius:20px; padding:3px 10px; align-self:flex-start}
+.status.gray{background:#eef0f4; color:#5c6675}
+.status.blue{background:var(--table-bg); color:var(--table)}
+.status.amber{background:var(--amber-bg); color:var(--amber-tx); border:1px solid var(--amber-bd)}
+.layer.hero{border-top:3px solid var(--flame)}
+.arrow{align-self:center; color:var(--faint); display:flex}
+.arrow svg{width:20px;height:20px}
+
+/* ---------- Explorer ---------- */
+.toolbar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:18px 0 6px}
+.fchip{border:1px solid var(--border-strong); background:#fff; border-radius:20px; padding:6px 14px; font-size:.78rem; font-weight:600; color:var(--muted); cursor:pointer; transition:all .15s}
+.fchip:hover{border-color:var(--flame)}
+.fchip.on{background:var(--ink); color:#fff; border-color:var(--ink)}
+.sort-group{margin-left:auto; display:flex; align-items:center; gap:6px; font-size:.72rem; color:var(--faint)}
+.sort-btn{border:1px solid var(--border-strong); background:#fff; border-radius:8px; padding:5px 10px; font-size:.72rem; font-weight:600; color:var(--muted); cursor:pointer}
+.sort-btn.on{background:var(--flame-soft); color:var(--flame-deep); border-color:var(--flame)}
+.result-count{font-size:.75rem; color:var(--faint); font-family:var(--font-mono); margin:0 0 10px}
+.ds-group-title{font-family:var(--font-display); font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); margin:20px 0 10px; position:sticky; top:-27px; background:var(--bg); padding:8px 0 4px; z-index:2}
+.ds-grid{display:grid; gap:12px}
+.ds{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; transition:border-color .15s}
+.ds:hover{border-color:var(--border-strong)}
+.ds.open{border-color:var(--flame)}
+.ds.flash{animation:flash 1.2s ease}
+@keyframes flash{0%{box-shadow:0 0 0 3px rgba(46,124,246,.45)} 100%{box-shadow:var(--shadow)}}
+.ds-head{display:flex; align-items:center; gap:12px; width:100%; background:none; border:0; padding:14px 18px; cursor:pointer; text-align:left}
+.type-badge{font-size:.6rem; font-weight:700; letter-spacing:.06em; padding:3px 8px; border-radius:6px; flex-shrink:0}
+.type-badge.table{background:var(--table-bg); color:var(--table)}
+.type-badge.view{background:var(--view-bg); color:var(--view)}
+.ds-main{min-width:0; flex:1}
+.ds-name{font-family:var(--font-mono); font-weight:600; font-size:.9rem}
+.ds-short{font-size:.8rem; color:var(--muted); margin-top:2px; line-height:1.45}
+.ds-side{flex-shrink:0; text-align:right; width:92px}
+.ds-cols{font-family:var(--font-mono); font-size:.7rem; color:var(--faint); white-space:nowrap}
+.col-bar{height:4px; border-radius:3px; background:#edf0f5; margin-top:5px; overflow:hidden}
+.col-bar i{display:block; height:100%; border-radius:3px; background:linear-gradient(90deg,var(--flame),var(--cyan))}
+.ds-caret{flex-shrink:0; color:var(--faint); transition:transform .2s; display:flex}
+.ds-caret svg{width:16px;height:16px}
+.ds.open .ds-caret{transform:rotate(90deg)}
+.ds-body{display:none; border-top:1px solid var(--border); padding:16px 18px 18px; background:#fbfcfe}
+.ds.open .ds-body{display:block}
+.ds-body p{font-size:.87rem; margin:0 0 13px}
+.stage-tags{margin:-4px 0 12px}
+.stage-tag{display:inline-block; font-size:.66rem; font-weight:600; color:var(--flame-deep); background:var(--flame-soft); border-radius:20px; padding:2px 9px; margin-right:6px}
+.meta-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; margin-bottom:12px}
+.meta-cell{background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 13px}
+.meta-cell .m-lbl{font-family:var(--font-mono); font-size:.62rem; letter-spacing:.09em; text-transform:uppercase; color:var(--faint); margin-bottom:4px}
+.meta-cell .m-val{font-size:.8rem}
+.cols-lbl{font-family:var(--font-mono); font-size:.62rem; letter-spacing:.09em; text-transform:uppercase; color:var(--faint); margin:2px 0 7px}
+.related{margin-top:12px}
+.copy-btn{display:inline-flex; align-items:center; gap:5px; border:1px solid var(--border-strong); background:#fff; border-radius:7px; padding:3px 9px; font-size:.68rem; font-weight:600; color:var(--muted); cursor:pointer; margin-left:10px; vertical-align:1px}
+.copy-btn:hover{border-color:var(--flame); color:var(--flame-deep)}
+.copy-btn svg{width:11px;height:11px}
+.ds-note{font-size:.78rem; color:var(--amber-tx); background:var(--amber-bg); border:1px solid var(--amber-bd); border-radius:var(--radius-sm); padding:9px 12px; margin-top:12px}
+.empty{padding:36px 20px; text-align:center; color:var(--muted); font-size:.88rem}
+.empty .mono{color:var(--faint); font-size:.78rem}
+
+/* ---------- Reference ---------- */
+.ref-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:18px}
+.ref-card h3{font-family:var(--font-display); font-size:.95rem; margin:0 0 12px}
+.ref-table{width:100%; border-collapse:collapse; font-size:.82rem}
+.ref-table td{padding:7px 10px 7px 0; border-bottom:1px solid var(--border); vertical-align:top}
+.ref-table tr:last-child td{border-bottom:0}
+.ref-table .code{font-family:var(--font-mono); font-size:.76rem; font-weight:600; white-space:nowrap; color:var(--flame-deep)}
+.grade-row{display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--border)}
+.grade-row:last-child{border-bottom:0}
+.grade-badge{flex-shrink:0; font-family:var(--font-display); font-weight:700; font-size:.78rem; border-radius:8px; padding:4px 10px}
+.gb1{background:var(--g1-bg); color:var(--g1)} .gb2{background:var(--g2-bg); color:var(--g2)} .gb3{background:var(--g3-bg); color:var(--g3)}
+.grade-row p{margin:0; font-size:.8rem; color:#2b3444}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .app{flex-direction:column}
+  .sidebar{width:100%; flex-direction:row; align-items:center; padding:10px 12px; gap:8px; overflow-x:auto}
+  .brand{padding:0 6px 0 0} .brand-db{display:none}
+  .nav{flex-direction:row; margin:0}
+  .nav button{padding:8px 11px; white-space:nowrap; font-size:.8rem}
+  .nav button svg{display:none}
+  .side-foot{display:none}
+  .content{padding:18px 16px 50px}
+  .stages{grid-template-columns:1fr}
+  .stage{border-left:1px solid var(--border); border-top:0}
+  .stage:first-child{border-top:1px solid var(--border); border-radius:var(--radius) var(--radius) 0 0}
+  .stage:last-child{border-radius:0 0 var(--radius) var(--radius)}
+  .two-col,.ref-grid{grid-template-columns:1fr}
+  .layers{grid-template-columns:1fr}
+  .arrow{transform:rotate(90deg); justify-self:center}
+  .topbar{padding:11px 16px}
+  .searchbox{width:min(220px,46vw)}
+  .searchbox .kbd-hint{display:none}
+  .ds-group-title{top:-19px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="flame-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2c1 4-4 6-4 11a6 6 0 0 0 12 0c0-3-1.6-4.8-2.8-6.2C16 8 15 9.5 13.8 9.5 15.2 6.5 13.5 3.6 12 2Z" fill="#fff" opacity=".95"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">Leak Data Catalog</div>
+        <div class="brand-db">PROD_GDM_PROD_DB</div>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Catalog sections">
+      <button class="active" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+        Overview
+      </button>
+      <button data-view="model">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="6" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M7 7.5 10.5 16M17 7.5 13.5 16M7.5 6h9"/></svg>
+        Data Model
+      </button>
+      <button data-view="explorer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
+        Data Explorer <span class="count">13</span>
+      </button>
+      <button data-view="architecture">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="5" rx="1"/><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="3" y="17" width="18" height="5" rx="1"/></svg>
+        Architecture
+      </button>
+      <button data-view="reference">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2Z"/><path d="M4 17h15"/></svg>
+        Reference
+      </button>
+    </nav>
+    <div class="side-foot">
+      <span class="dot"></span>Draft — pending SME review<br>
+      Generated Aug 20, 2026 · 100-row samples<br>
+      Press <kbd>/</kbd> to search · <kbd>Esc</kbd> to clear
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <h1 id="topbar-title">Overview</h1>
+      <div class="searchbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="global-search" type="search" placeholder="Search datasets, columns, keys…" aria-label="Search datasets">
+        <span class="kbd-hint">/</span>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- ======== OVERVIEW ======== -->
+      <section class="view active" id="view-overview">
+        <div class="banner" role="note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <div><strong>Working draft.</strong> Sections were inferred from table/column names, 100-row samples, and general gas-utility familiarity — not an official spec. Anything tagged <em>Draft</em> needs a review pass from someone with source-system knowledge before this is treated as an official reference.</div>
+        </div>
+
+        <p class="eyebrow">PROD_GDM_PROD_DB · Gas Distribution Management</p>
+        <h2 class="h-display">Gas Leak Management Data Catalog</h2>
+        <p class="lede">Leak records, work orders, and inspection detail for gas distribution leak management — from first report of an odor to regulatory backlog reporting.</p>
+
+        <div class="kpis">
+          <div class="kpi"><div class="num" data-count="13">0</div><div class="lbl">Curated objects documented</div></div>
+          <div class="kpi"><div class="num">12&thinsp;+&thinsp;1</div><div class="lbl">Dynamic Tables + Views</div></div>
+          <div class="kpi"><div class="num" data-count="225">0</div><div class="lbl">Columns in the widest table</div></div>
+          <div class="kpi"><div class="num" data-count="4">0</div><div class="lbl">Operating companies covered</div></div>
+        </div>
+
+        <div class="lifecycle">
+          <div class="lifecycle-head">
+            <h3 class="section-title">The life of a leak <span class="draft-tag">Draft</span></h3>
+            <p>Every dataset in this mart maps to a stage. Select a stage to see which tables cover it.</p>
+          </div>
+          <div class="stages" id="stages" role="tablist" aria-label="Leak lifecycle stages"></div>
+          <div class="stage-detail" id="stage-detail"><div class="card" id="stage-detail-card"></div></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card pad prose">
+            <h3 class="section-title">What is leak data <span class="draft-tag">Draft</span></h3>
+            <p>Leak Data is the set of records generated and maintained across the full lifecycle of a gas leak — from initial discovery through classification, response, repair, and closure. It answers: <em>where and when was a leak found, how severe is it, what work has been done about it, and what is its current status?</em></p>
+            <p>In practice this covers four things:</p>
+            <ul>
+              <li><strong>The leak itself</strong> — location, grade, status, cause</li>
+              <li><strong>Field readings & grading history</strong> that justify its classification</li>
+              <li><strong>Work orders</strong> raised against it — emergency response, monitoring, surveillance, repair — each a distinct order type with its own detail form</li>
+              <li><strong>The audit trail</strong> of every status and grade change</li>
+            </ul>
+            <p>Together these support day-to-day field operations (dispatch, crew assignment, compliance tracking) and regulatory/backlog reporting (e.g. <button class="obj-link" data-open="VW_LEAKS_BACKLOG" style="margin:0">VW_LEAKS_BACKLOG</button>).</p>
+          </div>
+
+          <div class="card pad prose">
+            <h3 class="section-title">Source systems <span class="draft-tag">Draft</span></h3>
+            <dl class="kv">
+              <dt>OPERATIONAL</dt>
+              <dd><strong>IBM Maximo</strong> work & asset management — status codes (<span class="mono" style="font-size:.85em">WAPPR, WSCH, FLDCOMP, CLOSE, CAN, ASBUILT</span>) and the <span class="mono" style="font-size:.85em">MAXADMIN</span> system user match Maximo's standard vocabulary.</dd>
+              <dt>FIELD LAYER</dt>
+              <dd>Columns like <span class="mono" style="font-size:.85em">SF_ORDERTYPE / SF_WONUM</span> suggest a <strong>Salesforce Field Service</strong> (or similar) dispatch layer upstream of Maximo. Inferred from column prefixes — confirm before relying on it.</dd>
+              <dt>REFRESH</dt>
+              <dd>Extracted into <span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB</span> on a scheduled refresh, tracked via <span class="mono" style="font-size:.85em">SOURCE_REFRESH_DT / NGMOD_DT / NGLOADDATE</span>.</dd>
+              <dt>CAPTURE</dt>
+              <dd>Field crews record leak-response and repair detail through structured digital forms per work-order type, which land in Maximo before extraction into this mart.</dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======== DATA MODEL ======== -->
+      <section class="view" id="view-model">
+        <p class="eyebrow">How everything joins</p>
+        <h2 class="h-display">Data Model</h2>
+        <p class="lede">Two hubs hold the mart together: <span class="mono" style="font-size:.85em">DT_LEAKS</span> (one row per leak) and <span class="mono" style="font-size:.85em">DT_LEAK_WORKORDERS</span> (one row per work order). Everything else hangs off them via <span class="mono" style="font-size:.85em">LEAK_ID</span> or <span class="mono" style="font-size:.85em">WO_NUM</span>. Hover to trace a table's joins; click any table to open its full card.</p>
+
+        <div class="map-wrap">
+          <div class="card map-card">
+            <svg id="er-map" viewBox="0 0 1000 620" role="img" aria-label="Relationship map of the 13 curated objects"></svg>
+            <div class="map-legend">
+              <span><span class="leg-box"></span> Hub table</span>
+              <span><span class="leg-line"></span> Direct join</span>
+              <span><span class="leg-line dash"></span> Derived / aggregated</span>
+              <span class="mono" style="font-size:.68rem">Edge label = join key</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======== EXPLORER ======== -->
+      <section class="view" id="view-explorer">
+        <p class="eyebrow">Curated layer</p>
+        <h2 class="h-display">Data Explorer</h2>
+        <p class="lede">13 objects (1 view, 12 Dynamic Tables), described from a 100-row sample of each. Descriptions are inferred from names, samples, and gas-utility domain knowledge — no source data dictionary existed. Verify grain, ownership, and business rules with an SME before official use.</p>
+
+        <div class="toolbar" id="filter-bar">
+          <button class="fchip on" data-filter="all">All</button>
+          <button class="fchip" data-filter="Core leak records">Core leak records</button>
+          <button class="fchip" data-filter="Work orders">Work orders</button>
+          <button class="fchip" data-filter="Work order detail, by order type">WO detail by type</button>
+          <div class="sort-group">Sort
+            <button class="sort-btn on" data-sort="group">Subject area</button>
+            <button class="sort-btn" data-sort="az">A–Z</button>
+            <button class="sort-btn" data-sort="cols">Widest first</button>
+          </div>
+        </div>
+        <div class="result-count" id="result-count">13 of 13</div>
+
+        <div id="ds-container"></div>
+        <div class="empty" id="empty-state" style="display:none">
+          No datasets match your search.<br><span class="mono">Try a table name, column, or keyword like “repair”.</span>
+        </div>
+      </section>
+
+      <!-- ======== ARCHITECTURE ======== -->
+      <section class="view" id="view-architecture">
+        <p class="eyebrow">Data layers</p>
+        <h2 class="h-display">How the database is organized</h2>
+        <p class="lede"><span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB</span> is built in layers — each a step further from the raw source system and closer to business-ready reporting.</p>
+
+        <div class="layers">
+          <div class="layer">
+            <h3>Raw</h3>
+            <div class="l-sub">LANDING LAYER</div>
+            <p>Data as landed from the source system(s) with minimal transformation. Not yet covered in this catalog — add sample tables if this layer should be documented too.</p>
+            <span class="status gray">Not yet documented</span>
+          </div>
+          <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></div>
+          <div class="layer hero">
+            <h3>Curated</h3>
+            <div class="l-sub">DT_ / VW_ OBJECTS</div>
+            <p>Cleaned, modeled views and Dynamic Tables — one row per business entity (leak, work order, reading), deduplicated and typed, ready for downstream use. This catalog's main coverage.</p>
+            <span class="status blue">13 objects documented</span>
+          </div>
+          <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></div>
+          <div class="layer">
+            <h3>GDM_RPT</h3>
+            <div class="l-sub">REPORTING LAYER</div>
+            <p>Reporting views built on top of Curated, shaped for direct consumption by dashboards and BI tools rather than general-purpose modeling.</p>
+            <span class="status amber">Awaiting sample tables</span>
+          </div>
+        </div>
+
+        <div class="card pad prose">
+          <h3 class="section-title">GDM_RPT — next up <span class="draft-tag">Draft</span></h3>
+          <p>Waiting on sample tables from the <span class="mono" style="font-size:.85em">GDM_RPT</span> schema. Send them over the same way as the Curated workbook and a card per view will be added to the Data Explorer, matching the format used for Curated objects.</p>
+        </div>
+      </section>
+
+      <!-- ======== REFERENCE ======== -->
+      <section class="view" id="view-reference">
+        <p class="eyebrow">Shared conventions</p>
+        <h2 class="h-display">Reference</h2>
+        <p class="lede">Naming conventions, company codes, leak grades, and work-order status vocabulary used throughout the mart.</p>
+
+        <div class="ref-grid">
+          <div class="card pad ref-card">
+            <h3>Naming convention</h3>
+            <table class="ref-table">
+              <tr><td class="code">VW_</td><td>View — computed/aggregated from underlying tables</td></tr>
+              <tr><td class="code">DT_</td><td>Dynamic Table — a modeled base data table</td></tr>
+              <tr><td class="code">WO_</td><td>Work order — refers to a work-order subject area in table names</td></tr>
+            </table>
+          </div>
+
+          <div class="card pad ref-card">
+            <h3>Operating companies (OPCO)</h3>
+            <table class="ref-table">
+              <tr><td class="code">5210</td><td>Niagara Mohawk Power Corp — jurisdiction <strong>UNY</strong> (Upstate NY)</td></tr>
+              <tr><td class="code">5220</td><td>Brooklyn Union Gas–KEDNY — jurisdiction <strong>NYC</strong></td></tr>
+              <tr><td class="code">5230</td><td>KeySpan Gas East–KEDLI — jurisdiction <strong>LI</strong> (Long Island)</td></tr>
+              <tr><td class="code">5330</td><td>Boston Gas Company — jurisdiction <strong>MA</strong></td></tr>
+            </table>
+          </div>
+
+          <div class="card pad ref-card">
+            <h3>Leak grades <span class="pill-note">(industry-standard convention)</span></h3>
+            <div class="grade-row"><span class="grade-badge gb1">Grade 1</span><p>Hazardous — requires <strong>immediate action</strong>.</p></div>
+            <div class="grade-row"><span class="grade-badge gb2">Grade 2 / 2A</span><p>Potentially hazardous — scheduled repair or periodic monitoring within a defined window.</p></div>
+            <div class="grade-row"><span class="grade-badge gb3">Grade 3</span><p>Non-hazardous at time of detection — re-evaluated on a monitoring cycle.</p></div>
+            <p class="pill-note" style="margin:10px 0 0">Exact repair/monitoring timelines are set by each jurisdiction's regulator and internal procedure — not shown in this data.</p>
+          </div>
+
+          <div class="card pad ref-card">
+            <h3>Work-order status codes <span class="draft-tag">Draft</span></h3>
+            <table class="ref-table">
+              <tr><td class="code">WAPPR</td><td>Waiting approval</td></tr>
+              <tr><td class="code">WSCH</td><td>Waiting to be scheduled</td></tr>
+              <tr><td class="code">FLDCOMP</td><td>Field complete</td></tr>
+              <tr><td class="code">SPVCOMP</td><td>Supervisor complete</td></tr>
+              <tr><td class="code">CLOSE</td><td>Closed</td></tr>
+              <tr><td class="code">CAN</td><td>Cancelled</td></tr>
+              <tr><td class="code">ASBUILT</td><td>As-built recorded</td></tr>
+            </table>
+            <p class="pill-note" style="margin:10px 0 0">These values, plus the <span class="mono" style="font-size:.85em">MAXADMIN</span> change-by user, indicate an IBM Maximo-based source feeding this mart on a scheduled refresh (see <span class="mono" style="font-size:.85em">SOURCE_REFRESH_DT / NGMOD_DT</span>).</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const DATASETS = [
+  {
+    name:"DT_LEAKS", type:"Table", cols:69, group:"Core leak records", stages:["discover","close"],
+    short:"The master leak record — one row per reported gas leak, its full lifecycle summary.",
+    desc:"The central table of the data mart. One row per reported gas leak, carrying its full lifecycle summary: current status and grade (plus grade at receipt, latest, and previous grade), priority, how it was discovered, key dates (found, closed, last/next survey, last/next repair, last/next recheck), location detail (address, city, state, zip, lat/long, nearest cross street, jurisdiction, operating company), and closure/cancellation reasons. Nearly every other table in this catalog links back to a leak through LEAK_ID.",
+    grain:"One row per leak", keys:"Primary key LEAK_ID · joins to nearly all other tables via LEAK_ID",
+    columns:["STATUS","GRADE","FOUND_DT","CLOSED_DT","ADDR / CITY / STATE / ZIP_CD","LATITUDE / LONGITUDE","LEAK_CAUSE","JURISDICTION"]
+  },
+  {
+    name:"VW_LEAKS_BACKLOG", type:"View", cols:10, group:"Core leak records", stages:["close"],
+    short:"Monthly count of open, unrepaired leaks by jurisdiction and grade — regulatory backlog reporting.",
+    desc:"Monthly count of open, unrepaired leaks (\"backlog\") by jurisdiction and grade grouping. Used for regulatory backlog reporting and month-over-month trending of outstanding hazardous / potentially-hazardous leaks (Grade 1, 2, 2A) that have not yet been repaired.",
+    grain:"One row per jurisdiction + backlog month/year + grade grouping",
+    keys:"JURISDICTION, BACKLOG YEAR, BACKLOG MONTH, GRADE · likely aggregated from DT_LEAKS / DT_LEAK_STATUS_HIST rather than loaded directly",
+    columns:["BACKLOG COUNT","NGLOADSTATUS","NGMODDATE"]
+  },
+  {
+    name:"DT_LEAK_EXTENT", type:"Table", cols:15, group:"Core leak records", stages:["grade"],
+    short:"Physical size and repair-strategy assessment of a leak, measured by an inspector.",
+    desc:"Physical size and repair-strategy assessment for a leak, as measured by an inspector during a survey — length, width, computed square footage, and an extent classification code (e.g. service line). Supports repair prioritization and cost/method planning.",
+    grain:"One row per leak-extent assessment",
+    keys:"LEAK_EXTENT_ID (row id) · LEAK_ID · LEAK_EXTENT_WO (linking work order)",
+    columns:["LENGTH / WIDTH / SQUARE_FT","LEAK_EXTENT_CLASS","INSPR_NAME","REPAIR_STRATEGY_CD","REPAIR_DUE_DT"]
+  },
+  {
+    name:"DT_LEAK_GRADE_HIST", type:"Table", cols:11, group:"Core leak records", stages:["grade"],
+    short:"Audit trail of grade classification changes over a leak's life.",
+    desc:"Audit trail of grade classification changes for a leak over its life (e.g. re-graded from a 2 to a 1 after a follow-up inspection). Each row is one grading event, with the grade assigned, the inspector, inspection date, whether the change was acknowledged, and free-text remarks.",
+    grain:"One row per grade-change / grading event",
+    keys:"LEAK_ID · LEAK_READING_ID · optional WO_NUM",
+    columns:["GRADE","INSPN_DT","GRADE_CHG_ACK","REMARKS"]
+  },
+  {
+    name:"DT_LEAK_READING", type:"Table", cols:28, group:"Core leak records", stages:["grade"],
+    short:"Individual field gas-concentration readings — the measurements behind a grading decision.",
+    desc:"Individual field gas-concentration readings taken while surveying a leak — the raw measurements (e.g. \"Gas %\") behind a grading decision, tagged with where the reading was taken (inside a structure, curb, lawn/sidewalk/street, distance bands) and by whom.",
+    grain:"One row per individual gas reading taken during a survey",
+    keys:"LEAK_READING_ID · LEAK_ID · optional WO_NUM",
+    columns:["CATEGORY / CODE","MEASUREMENT / VALUE","INSPR_NAME","INSPN_DT","INSIDE_READING_IND"]
+  },
+  {
+    name:"DT_LEAK_STATUS_HIST", type:"Table", cols:6, group:"Core leak records", stages:["close"],
+    short:"Audit trail of leak status transitions — the leak's full lifecycle timeline.",
+    desc:"Audit trail of leak status transitions over time (e.g. OPEN → PNDREVIEW → REPAIRED → CLOSED), with the date of each change, who/what made it, and a memo. This is what a leak's full lifecycle timeline is reconstructed from.",
+    grain:"One row per status-change event", keys:"LEAK_ID · STATUS_DT",
+    columns:["STATUS","STATUS_DT","CHG_BY","MEMO"],
+    note:"Sheet was named \"DT_LEAK_STATUS_HIST LIMIT\" in the source workbook — the trailing \"LIMIT\" looks like an artifact of the SQL used to pull the sample, not part of the real table name."
+  },
+  {
+    name:"DT_LEAK_WORKORDERS", type:"Table", cols:131, group:"Work orders", stages:["respond"],
+    short:"The master work-order table — scheduling, crew, cost, funding, and GIS tracking.",
+    desc:"The master work-order table for the leak-management work-management system (Maximo-style). One row per work order — covering not just leak repairs but the full range of related order types seen in the sample (street opening permits, splits/replacements, premarks, etc.). Carries scheduling (target/actual/scheduled start–finish dates), crew and supervisor assignment, cost (GL account, cost center, estimated material/tool cost), funding/capital project linkage, and GIS/mapping completion tracking. This is the broadest work-order table; the DT_WO_LEAK_* tables hold type-specific detail.",
+    grain:"One row per work order",
+    keys:"Primary key WO_NUM / WO_ID · joins to DT_LEAKS via LEAK_ID (when leak-related); DT_LEAK_WO_STATUS_HIST and DT_WO_LEAK_* detail tables via WO_NUM",
+    columns:["WO_STATUS","WORK_TYPE","CREW / SUPERVISOR","SCHED_START_DT / SCHED_FINISH_DT","OPCO","FUNDING_PROJECT"]
+  },
+  {
+    name:"DT_LEAK_WO_STATUS_HIST", type:"Table", cols:9, group:"Work orders", stages:["respond"],
+    short:"Audit trail of work-order status transitions (WAPPR → WSCH → FLDCOMP …).",
+    desc:"Audit trail of work-order status transitions (e.g. WAPPR → WSCH → FLDCOMP), analogous to DT_LEAK_STATUS_HIST but for work orders rather than leaks. Includes reason code, who made the change and when, and a memo.",
+    grain:"One row per work-order status-change event", keys:"WO_NUM · STATUS_DT",
+    columns:["STATUS","REASON_CD","CHANGED_BY / CHANGED_DT","MEMO"]
+  },
+  {
+    name:"DT_WO_LEAK_EMERGENCY_ODOR_INVES", type:"Table", cols:164, group:"Work order detail, by order type", stages:["discover"],
+    short:"Emergency odor-of-gas investigation form — the field crew's full safety checklist.",
+    desc:"Detail form data for emergency odor-of-gas investigation work orders (order type \"Emg (G) - Odor\"). This is the field crew's safety checklist for an emergency response: odor strength and location, gas detection method and readings, evacuation and hospitalization counts, appliance light-up and CO (carbon monoxide) investigation results, warning tags issued, meter/curb-box/regulator condition, and building/wall-check findings. Very wide because it captures the entire multi-section emergency-response form as flat columns.",
+    grain:"One row per emergency odor-investigation work order (repeats per form section in the sample)",
+    keys:"WO_NUM · LEAK_ID (often null until a leak is confirmed)",
+    columns:["ODOR_STRENGTH / ODOR_LOC","ACTION_TAKEN","CO_FOUND_IND","EVACUATION_IND","WARN_TAG_ISSUED_IND","FATALITIES_IND"]
+  },
+  {
+    name:"DT_WO_LEAK_MONITORING", type:"Table", cols:39, group:"Work order detail, by order type", stages:["respond"],
+    short:"Recurring, scheduled monitoring visits for non-hazardous (typically Grade 3) leaks.",
+    desc:"Detail table for \"Leak - Monitoring\" work orders — the recurring, scheduled visits used to keep watch on a non-hazardous leak (typically Grade 3) that doesn't yet require repair. Holds the work-order header fields relevant to scheduling and completing a monitoring visit (crew, dates, status) rather than a technical inspection form.",
+    grain:"One row per leak-monitoring work order", keys:"WO_NUM · LEAK_ID",
+    columns:["WO_STATUS","SCHED_START_DT / SCHED_FINISH_DT","CREW_WORK_GRP","SF_ORDERTYPE"]
+  },
+  {
+    name:"DT_WO_LEAK_REPAIR", type:"Table", cols:54, group:"Work order detail, by order type", stages:["repair"],
+    short:"The job that physically fixes a leak — scheduling, cost, crew, and task structure.",
+    desc:"Detail table for \"Leak - Repair\" work orders — the job that physically fixes a leak. Carries repair scheduling, cost center and funding project, crew/vendor assignment, and a task/parent/operation structure for repairs broken into multiple steps. Status values seen include CLOSE, ASBUILT, CAN (cancelled), and SPVCOMP (supervisor-complete).",
+    grain:"One row per leak-repair work order (or task, when a repair is split into sub-tasks)",
+    keys:"WO_NUM · LEAK_ID · PARENT / TASK for sub-tasks",
+    columns:["WO_STATUS","LEAK_GRADE_AT_REPAIR","FUNDING_PROJECT","COST_CENTER","CONSTR_COMPLETE_DT"]
+  },
+  {
+    name:"DT_WO_LEAK_REPAIR_OBSERVATION", type:"Table", cols:225, group:"Work order detail, by order type", stages:["repair"],
+    short:"The most detailed table in the mart — the technical field-inspection record during repair.",
+    desc:"The most detailed table in the mart — the technical field-inspection record captured while a repair crew is on site. Covers pipe/facility characteristics (material, diameter, depth, coating condition and type), soil conditions, pressure testing (medium, equipment, pass/fail, pressure), excavation and third-party damage details, cathodic protection (anodes, rectifiers), meter set and service-line work, and pipe abandonment segments. Reflects PHMSA / engineering-compliance-style repair documentation flattened into one very wide row per observation.",
+    grain:"One row per repair observation/section per work order (one repair WO can have several rows — one per pipe segment, test, or form section)",
+    keys:"WO_NUM · LEAK_ID · SECTION · SEQUENCE_NUM",
+    columns:["MATERIAL_REPAIRED","LEAK_CAUSE","PRESSURE_TEST_PASS_IND","DAMAGE_STATE / DAMAGE_CITY","ABANDONED_PIPE_MATERIAL"]
+  },
+  {
+    name:"DT_WO_LEAK_SURV_WALLCHECK_RECHE", type:"Table", cols:40, group:"Work order detail, by order type", stages:["respond"],
+    short:"Surveillance, wall-check, and recheck inspection work orders — three subtypes in one table.",
+    desc:"Detail table combining three related, recurring inspection work-order subtypes seen in SF_ORDERTYPE: periodic \"Leak Surveillance – Grade 2, 2A, 3\" visits, \"Wall Check\" inspections (checking building walls near a leak for gas migration), and \"Leak Recheck\" follow-ups. Holds work-order-level scheduling and status fields common to all three, rather than a technical observation form.",
+    grain:"One row per surveillance / wall-check / recheck work order",
+    keys:"WO_NUM · LEAK_ID · SF_ORDERTYPE (distinguishes the three subtypes)",
+    columns:["SF_ORDERTYPE","WORK_TYPE","WO_STATUS","SCHED_START_DT / ACTUAL_FINISH_DT"]
+  }
+];
+
+const STAGES = [
+  {id:"discover", num:"STAGE 1", name:"Discovery", desc:"An odor is reported or a survey finds gas — an emergency response begins."},
+  {id:"grade", num:"STAGE 2", name:"Grading", desc:"Field readings, extent measurement, and grade classification with full history."},
+  {id:"respond", num:"STAGE 3", name:"Response", desc:"Work orders raised — monitoring, surveillance, wall checks, rechecks."},
+  {id:"repair", num:"STAGE 4", name:"Repair", desc:"The physical fix, plus the detailed on-site engineering observation record."},
+  {id:"close", num:"STAGE 5", name:"Closure & Reporting", desc:"Status trail to closure, and the regulatory backlog view."}
+];
+const GROUP_ORDER = ["Core leak records","Work orders","Work order detail, by order type"];
+const STAGE_NAME = Object.fromEntries(STAGES.map(s=>[s.id,s.name]));
+const MAX_COLS = Math.max(...DATASETS.map(d=>d.cols));
+
+/* Relationships: [from, to, key, derived?] */
+const EDGES = [
+  ["DT_LEAKS","DT_LEAK_READING","LEAK_ID"],
+  ["DT_LEAKS","DT_LEAK_GRADE_HIST","LEAK_ID"],
+  ["DT_LEAKS","DT_LEAK_EXTENT","LEAK_ID"],
+  ["DT_LEAKS","DT_LEAK_STATUS_HIST","LEAK_ID"],
+  ["DT_LEAKS","VW_LEAKS_BACKLOG","agg.",true],
+  ["DT_LEAK_STATUS_HIST","VW_LEAKS_BACKLOG","agg.",true],
+  ["DT_LEAKS","DT_LEAK_WORKORDERS","LEAK_ID"],
+  ["DT_LEAK_WORKORDERS","DT_LEAK_WO_STATUS_HIST","WO_NUM"],
+  ["DT_LEAK_WORKORDERS","DT_WO_LEAK_EMERGENCY_ODOR_INVES","WO_NUM"],
+  ["DT_LEAK_WORKORDERS","DT_WO_LEAK_MONITORING","WO_NUM"],
+  ["DT_LEAK_WORKORDERS","DT_WO_LEAK_REPAIR","WO_NUM"],
+  ["DT_LEAK_WORKORDERS","DT_WO_LEAK_REPAIR_OBSERVATION","WO_NUM"],
+  ["DT_LEAK_WORKORDERS","DT_WO_LEAK_SURV_WALLCHECK_RECHE","WO_NUM"]
+];
+function relatedTo(name){
+  const rel = new Set();
+  EDGES.forEach(([a,b])=>{ if(a===name) rel.add(b); if(b===name) rel.add(a); });
+  return [...rel];
+}
+
+/* ================= KPI count-up ================= */
+const reduceMotion = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) || false;
+document.querySelectorAll('[data-count]').forEach(el=>{
+  const target = +el.dataset.count;
+  if(reduceMotion){ el.textContent = target; return; }
+  const t0 = performance.now(), dur = 800;
+  (function tick(t){
+    const p = Math.min((t-t0)/dur, 1);
+    el.textContent = Math.round(target * (1-Math.pow(1-p,3)));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+});
+
+/* ================= Lifecycle ================= */
+const stagesEl = document.getElementById('stages');
+const stageDetail = document.getElementById('stage-detail');
+const stageDetailCard = document.getElementById('stage-detail-card');
+let selectedStage = null;
+
+STAGES.forEach(s=>{
+  const n = DATASETS.filter(d=>d.stages.includes(s.id)).length;
+  const b = document.createElement('button');
+  b.className='stage'; b.setAttribute('role','tab'); b.dataset.stage=s.id;
+  b.innerHTML = `<span class="s-count">${n}</span><div class="s-num">${s.num}</div><div class="s-name">${s.name}</div><div class="s-desc">${s.desc}</div>`;
+  b.addEventListener('click',()=>selectStage(s.id));
+  stagesEl.appendChild(b);
+});
+
+function selectStage(id){
+  if(selectedStage===id){ selectedStage=null; stageDetail.classList.remove('show');
+    stagesEl.querySelectorAll('.stage').forEach(x=>x.classList.remove('sel')); return; }
+  selectedStage=id;
+  stagesEl.querySelectorAll('.stage').forEach(x=>x.classList.toggle('sel', x.dataset.stage===id));
+  const s = STAGES.find(x=>x.id===id);
+  const list = DATASETS.filter(d=>d.stages.includes(id));
+  stageDetailCard.innerHTML = `<h4>${s.name} — covered by ${list.length} dataset${list.length>1?'s':''}</h4>` +
+    list.map(d=>`<button class="obj-link" data-open="${d.name}">${d.name}<span style="color:var(--faint)">· ${d.cols} cols</span></button>`).join('');
+  stageDetail.classList.add('show');
+}
+
+/* ================= Data model map ================= */
+const NODE_POS = {
+  "DT_LEAKS":               {x:355, y:300, w:150, hub:true},
+  "VW_LEAKS_BACKLOG":       {x:110, y:80,  w:170},
+  "DT_LEAK_STATUS_HIST":    {x:105, y:200, w:180},
+  "DT_LEAK_GRADE_HIST":     {x:105, y:330, w:180},
+  "DT_LEAK_READING":        {x:110, y:455, w:165},
+  "DT_LEAK_EXTENT":         {x:330, y:520, w:160},
+  "DT_LEAK_WORKORDERS":     {x:635, y:300, w:190, hub:true},
+  "DT_WO_LEAK_SURV_WALLCHECK_RECHE":{x:635, y:85, w:250},
+  "DT_LEAK_WO_STATUS_HIST": {x:880, y:150, w:200},
+  "DT_WO_LEAK_EMERGENCY_ODOR_INVES":{x:872, y:265, w:245},
+  "DT_WO_LEAK_MONITORING":  {x:880, y:385, w:200},
+  "DT_WO_LEAK_REPAIR":      {x:880, y:500, w:180},
+  "DT_WO_LEAK_REPAIR_OBSERVATION":{x:610, y:540, w:235}
+};
+const NODE_H = 44;
+const svg = document.getElementById('er-map');
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs){ const e = document.createElementNS(SVGNS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+/* edges first (under nodes) */
+EDGES.forEach(([a,b,key,derived],i)=>{
+  const A = NODE_POS[a], B = NODE_POS[b];
+  const path = el('path',{d:`M ${A.x} ${A.y} Q ${(A.x+B.x)/2} ${(A.y+B.y)/2 - 14} ${B.x} ${B.y}`,
+    class:'er-edge'+(derived?' derived':''), 'data-a':a, 'data-b':b, id:'edge'+i});
+  svg.appendChild(path);
+  const lx = (A.x+B.x)/2, ly = (A.y+B.y)/2 - 18;
+  const lbl = el('text',{x:lx, y:ly, class:'er-edge-label', 'text-anchor':'middle', 'data-a':a, 'data-b':b});
+  lbl.textContent = key;
+  svg.appendChild(lbl);
+});
+
+/* nodes */
+DATASETS.forEach(d=>{
+  const p = NODE_POS[d.name]; if(!p) return;
+  const g = el('g',{class:'er-node'+(p.hub?' hub':''), 'data-name':d.name, tabindex:'0', role:'button', 'aria-label':`Open ${d.name}`});
+  g.appendChild(el('rect',{x:p.x-p.w/2, y:p.y-NODE_H/2, width:p.w, height:NODE_H, rx:9}));
+  const t1 = el('text',{x:p.x, y:p.y-3, 'text-anchor':'middle', class:'er-name'}); t1.textContent = d.name;
+  const t2 = el('text',{x:p.x, y:p.y+13, 'text-anchor':'middle', class:'er-cols'}); t2.textContent = `${d.type.toUpperCase()} · ${d.cols} cols`;
+  g.appendChild(t1); g.appendChild(t2);
+  g.addEventListener('mouseenter',()=>focusNode(d.name));
+  g.addEventListener('mouseleave',clearFocus);
+  g.addEventListener('focus',()=>focusNode(d.name));
+  g.addEventListener('blur',clearFocus);
+  g.addEventListener('click',()=>goToDataset(d.name));
+  g.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); goToDataset(d.name);} });
+  svg.appendChild(g);
+});
+
+function focusNode(name){
+  svg.classList.add('focus');
+  const rel = new Set(relatedTo(name)); rel.add(name);
+  svg.querySelectorAll('.er-node').forEach(n=>n.classList.toggle('lit', rel.has(n.dataset.name)));
+  svg.querySelectorAll('.er-edge,.er-edge-label').forEach(e=>{
+    e.classList.toggle('lit', e.dataset.a===name || e.dataset.b===name);
+  });
+}
+function clearFocus(){
+  svg.classList.remove('focus');
+  svg.querySelectorAll('.lit').forEach(e=>e.classList.remove('lit'));
+}
+
+/* ================= Explorer ================= */
+const dsContainer = document.getElementById('ds-container');
+const emptyState = document.getElementById('empty-state');
+const resultCount = document.getElementById('result-count');
+let activeFilter='all', searchTerm='', sortMode='group';
+
+function esc(s){ return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function hi(text){
+  const q = searchTerm.trim();
+  if(!q) return esc(text);
+  const safe = esc(text);
+  const rx = new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+  return safe.replace(rx,'<mark>$1</mark>');
+}
+
+function dsCard(d){
+  const badge = d.type==='View' ? '<span class="type-badge view">VIEW</span>' : '<span class="type-badge table">TABLE</span>';
+  const note = d.note ? `<div class="ds-note"><strong>Note:</strong> ${esc(d.note)}</div>` : '';
+  const rel = relatedTo(d.name);
+  const relHtml = rel.length ? `<div class="related"><div class="cols-lbl">Related tables</div>${rel.map(r=>`<button class="obj-link" data-open="${r}">${r}</button>`).join('')}</div>` : '';
+  const tags = d.stages.map(s=>`<span class="stage-tag">${STAGE_NAME[s]}</span>`).join('');
+  return `<article class="ds" data-name="${d.name}">
+    <button class="ds-head" aria-expanded="false">
+      ${badge}
+      <div class="ds-main">
+        <div class="ds-name">${hi(d.name)}</div>
+        <div class="ds-short">${hi(d.short)}</div>
+      </div>
+      <div class="ds-side">
+        <div class="ds-cols">${d.cols} cols</div>
+        <div class="col-bar"><i style="width:${Math.max(4, d.cols/MAX_COLS*100)}%"></i></div>
+      </div>
+      <span class="ds-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span>
+    </button>
+    <div class="ds-body">
+      <div class="stage-tags">${tags}</div>
+      <p>${hi(d.desc)}</p>
+      <div class="meta-grid">
+        <div class="meta-cell"><div class="m-lbl">Grain</div><div class="m-val">${esc(d.grain)}</div></div>
+        <div class="meta-cell"><div class="m-lbl">Keys & joins</div><div class="m-val mono" style="font-size:.76rem">${esc(d.keys)}</div></div>
+      </div>
+      <div class="cols-lbl">Key columns <button class="copy-btn" data-copy="${d.name}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy table name</button></div>
+      <div>${d.columns.map(c=>`<span class="chip">${hi(c)}</span>`).join('')}</div>
+      ${relHtml}
+      ${note}
+    </div>
+  </article>`;
+}
+
+function currentList(){
+  const q = searchTerm.trim().toLowerCase();
+  return DATASETS.filter(d=>{
+    if(activeFilter!=='all' && d.group!==activeFilter) return false;
+    if(!q) return true;
+    const hay = [d.name,d.short,d.desc,d.grain,d.keys,d.columns.join(' '),d.group,d.type,(d.note||'')].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+}
+
+function renderExplorer(){
+  const visible = currentList();
+  let html='';
+  if(sortMode==='group'){
+    GROUP_ORDER.forEach(g=>{
+      const items = visible.filter(d=>d.group===g);
+      if(!items.length) return;
+      html += `<div class="ds-group-title">${g} · ${items.length}</div><div class="ds-grid">` + items.map(dsCard).join('') + `</div>`;
+    });
+  } else {
+    const items = [...visible].sort(sortMode==='az' ? (a,b)=>a.name.localeCompare(b.name) : (a,b)=>b.cols-a.cols);
+    html = `<div class="ds-grid" style="margin-top:14px">` + items.map(dsCard).join('') + `</div>`;
+  }
+  dsContainer.innerHTML = html;
+  emptyState.style.display = visible.length ? 'none':'block';
+  resultCount.textContent = `${visible.length} of ${DATASETS.length} objects`;
+}
+renderExplorer();
+
+/* delegated events */
+dsContainer.addEventListener('click',e=>{
+  const openBtn = e.target.closest('[data-open]');
+  if(openBtn){ goToDataset(openBtn.dataset.open); return; }
+  const copyBtn = e.target.closest('[data-copy]');
+  if(copyBtn){
+    const name = copyBtn.dataset.copy;
+    const done = ()=>{ const old = copyBtn.innerHTML; copyBtn.innerHTML='✓ Copied'; setTimeout(()=>copyBtn.innerHTML=old, 1400); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(name).then(done).catch(done); }
+    else { const ta=document.createElement('textarea'); ta.value=name; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} ta.remove(); done(); }
+    return;
+  }
+  const h = e.target.closest('.ds-head');
+  if(h){ const card = h.closest('.ds'); const open = card.classList.toggle('open'); h.setAttribute('aria-expanded', open); }
+});
+document.getElementById('stage-detail-card').addEventListener('click',e=>{
+  const b = e.target.closest('[data-open]'); if(b) goToDataset(b.dataset.open);
+});
+document.getElementById('view-overview').addEventListener('click',e=>{
+  const b = e.target.closest('.prose [data-open]'); if(b) goToDataset(b.dataset.open);
+});
+
+document.getElementById('filter-bar').addEventListener('click',e=>{
+  const f = e.target.closest('.fchip');
+  if(f){ document.querySelectorAll('.fchip').forEach(x=>x.classList.remove('on')); f.classList.add('on'); activeFilter=f.dataset.filter; renderExplorer(); return; }
+  const s = e.target.closest('.sort-btn');
+  if(s){ document.querySelectorAll('.sort-btn').forEach(x=>x.classList.remove('on')); s.classList.add('on'); sortMode=s.dataset.sort; renderExplorer(); }
+});
+
+/* ================= Nav, hash routing, search ================= */
+const navBtns = document.querySelectorAll('.nav button');
+const titles = {overview:'Overview', model:'Data Model', explorer:'Data Explorer', architecture:'Architecture', reference:'Reference'};
+function showView(v, pushHash=true){
+  if(!titles[v]) v='overview';
+  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active', s.id==='view-'+v));
+  document.getElementById('topbar-title').textContent = titles[v];
+  document.getElementById('content').scrollTop = 0;
+  if(pushHash){ try{ history.replaceState(null,'','#'+v); }catch(_){} }
+}
+navBtns.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+const initHash = location.hash.replace('#','');
+if(titles[initHash]) showView(initHash, false);
+
+const searchInput = document.getElementById('global-search');
+searchInput.addEventListener('input',()=>{
+  searchTerm = searchInput.value;
+  if(searchTerm && !document.getElementById('view-explorer').classList.contains('active')) showView('explorer');
+  renderExplorer();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='/' && document.activeElement!==searchInput && !/input|textarea/i.test(document.activeElement.tagName)){
+    e.preventDefault(); searchInput.focus();
+  }
+  if(e.key==='Escape' && searchInput.value){ searchInput.value=''; searchTerm=''; renderExplorer(); }
+});
+
+function goToDataset(name){
+  showView('explorer');
+  activeFilter='all'; searchTerm=''; searchInput.value='';
+  document.querySelectorAll('.fchip').forEach(x=>x.classList.toggle('on', x.dataset.filter==='all'));
+  renderExplorer();
+  const card = dsContainer.querySelector(`.ds[data-name="${name}"]`);
+  if(card){
+    card.classList.add('open');
+    card.querySelector('.ds-head').setAttribute('aria-expanded','true');
+    card.classList.add('flash');
+    setTimeout(()=>card.classList.remove('flash'), 1300);
+    if(card.scrollIntoView) card.scrollIntoView({behavior: reduceMotion?'auto':'smooth', block:'center'});
+  }
+}
+</script>
+</body>
+</html>
