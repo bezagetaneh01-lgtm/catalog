@@ -120,6 +120,87 @@ mark{background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px}
 .wrow .wbar i{display:block; height:100%; border-radius:5px; background:linear-gradient(90deg,var(--flame),var(--cyan))}
 .wrow .wnum{font-family:var(--font-mono); font-size:.7rem; color:var(--faint); text-align:right}
 @media (max-width:700px){ .wrow{grid-template-columns:1fr 60px} .wrow .wbar{display:none} }
+
+/* ---------- Start Here ---------- */
+.steps3{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:20px 0 24px}
+.step3{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow)}
+.step3 .st-n{font-family:var(--font-display); font-weight:700; font-size:.78rem; color:#fff; background:linear-gradient(120deg,var(--flame),var(--cyan)); width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:9px}
+.step3 h4{font-family:var(--font-display); margin:0 0 4px; font-size:.9rem}
+.step3 p{margin:0; font-size:.78rem; color:var(--muted); line-height:1.5}
+.step3 kbd{font-family:var(--font-mono); font-size:.66rem; background:#f1f3f7; border:1px solid var(--border); border-radius:4px; padding:0 5px}
+[data-theme="dark"] .step3 kbd{background:#182338}
+.q-list{display:grid; gap:10px; margin-top:14px}
+.q-item{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
+.q-item.open{border-color:var(--flame)}
+.q-head{display:flex; align-items:center; gap:12px; width:100%; background:none; border:0; padding:13px 17px; cursor:pointer; text-align:left}
+.q-head .q-icon{flex-shrink:0; width:26px; height:26px; border-radius:8px; background:var(--flame-soft); color:var(--flame-deep); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:.8rem}
+.q-head .q-text{font-size:.88rem; font-weight:600; flex:1}
+.q-head .q-caret{color:var(--faint); transition:transform .2s; display:flex}
+.q-head .q-caret svg{width:15px;height:15px}
+.q-item.open .q-caret{transform:rotate(90deg)}
+.q-body{display:none; border-top:1px solid var(--border); padding:14px 17px 16px; background:#fbfcfe}
+[data-theme="dark"] .q-body{background:#0f1728}
+.q-item.open .q-body{display:block}
+.q-body .q-where{font-size:.8rem; color:var(--muted); margin:0 0 9px}
+.sql-block{position:relative; background:#0e1626; border-radius:10px; padding:13px 15px; margin-top:10px; overflow-x:auto}
+.sql-block code{font-family:var(--font-mono); font-size:.76rem; color:#cfe0ff; white-space:pre; display:block; line-height:1.6}
+.sql-block .sql-kw{color:#7aa9ff}
+.sql-copy{position:absolute; top:8px; right:8px; border:1px solid #2c3c5c; background:#121b2d; color:#9aa6ba; border-radius:7px; padding:3px 9px; font-size:.66rem; font-weight:600; cursor:pointer}
+.sql-copy:hover{color:#fff; border-color:var(--flame)}
+.sql-caveat{font-size:.7rem; color:var(--faint); margin-top:6px}
+.access-card{border-left:3px solid var(--cyan)}
+.gloss{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:4px 26px}
+.gloss dt{font-family:var(--font-mono); font-size:.76rem; font-weight:600; color:var(--flame-deep); margin-top:9px}
+.gloss dd{margin:1px 0 0; font-size:.8rem; color:var(--muted); line-height:1.5}
+
+/* ---------- Hero glow ---------- */
+#view-overview, #view-start{position:relative}
+#view-overview::before, #view-start::before{
+  content:""; position:absolute; top:-60px; left:-80px; width:480px; height:340px;
+  background:radial-gradient(ellipse at center, rgba(46,124,246,.14), rgba(34,184,207,.06) 55%, transparent 75%);
+  pointer-events:none; z-index:-1;
+}
+[data-theme="dark"] #view-overview::before, [data-theme="dark"] #view-start::before{
+  background:radial-gradient(ellipse at center, rgba(46,124,246,.22), rgba(34,184,207,.08) 55%, transparent 75%);
+}
+
+/* ---------- Command palette ---------- */
+.palette-backdrop{position:fixed; inset:0; background:rgba(10,16,28,.5); backdrop-filter:blur(3px); display:none; z-index:50}
+.palette-backdrop.open{display:flex; align-items:flex-start; justify-content:center; padding-top:12vh}
+.palette{width:min(560px, 92vw); background:var(--panel); border:1px solid var(--border-strong); border-radius:16px; box-shadow:0 24px 60px -12px rgba(0,0,0,.45); overflow:hidden}
+.palette input{width:100%; border:0; outline:none; padding:16px 18px; font:inherit; font-size:1rem; background:transparent; color:var(--text); border-bottom:1px solid var(--border)}
+.palette-list{max-height:46vh; overflow-y:auto; padding:6px}
+.p-item{display:flex; align-items:center; gap:11px; width:100%; text-align:left; background:none; border:0; padding:10px 12px; border-radius:10px; cursor:pointer; color:var(--text)}
+.p-item .p-kind{font-size:.58rem; font-weight:700; letter-spacing:.06em; padding:2px 7px; border-radius:5px; flex-shrink:0; width:56px; text-align:center}
+.p-kind.sec{background:#eef0f4; color:#5c6675}
+[data-theme="dark"] .p-kind.sec{background:#1c2a44; color:#9aa6ba}
+.p-kind.tbl{background:var(--table-bg); color:var(--table)}
+.p-kind.vw{background:var(--view-bg); color:var(--view)}
+.p-item .p-name{font-size:.86rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.p-item .p-name .mono{font-size:.8rem}
+.p-item .p-sub{margin-left:auto; font-size:.68rem; color:var(--faint); font-family:var(--font-mono); flex-shrink:0}
+.p-item.hover, .p-item:hover{background:var(--flame-soft)}
+.p-empty{padding:20px; text-align:center; font-size:.84rem; color:var(--muted)}
+.p-foot{display:flex; gap:14px; padding:8px 14px; border-top:1px solid var(--border); font-size:.66rem; color:var(--faint)}
+.p-foot kbd{font-family:var(--font-mono); background:#f1f3f7; border:1px solid var(--border); border-radius:4px; padding:0 5px}
+[data-theme="dark"] .p-foot kbd{background:#182338}
+
+/* ---------- Print / export ---------- */
+@media print{
+  :root, [data-theme="dark"]{ --bg:#fff; --panel:#fff; --text:#111; --muted:#444; --faint:#666; --border:#ccc; --border-strong:#bbb; --shadow:none }
+  body{background:#fff}
+  .app{display:block; height:auto; overflow:visible}
+  .sidebar,.topbar,.toolbar,.result-count,.stage-detail,.palette-backdrop,.theme-btn,.copy-btn,.kbd-hint,.ds-caret{display:none!important}
+  .content{overflow:visible; padding:0}
+  .view{display:block!important; max-width:100%; page-break-before:always; animation:none}
+  .view:first-child{page-break-before:auto}
+  .view::before{display:none}
+  .ds-body{display:block!important}
+  .ds,.card,.kpi,.layer{box-shadow:none; break-inside:avoid}
+  .map-wrap{overflow:visible}
+  .map-card{min-width:0}
+  a{color:#111}
+}
 .pad{padding:20px 22px}
 .section-title{font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin:0 0 4px; display:flex; align-items:center; gap:9px; flex-wrap:wrap}
 .draft-tag{font-size:.6rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; background:var(--amber-bg); color:var(--amber-tx); border:1px solid var(--amber-bd); padding:2px 8px; border-radius:20px}
@@ -293,15 +374,19 @@ mark{background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px}
   <aside class="sidebar">
     <div class="brand">
       <div class="flame-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2c1 4-4 6-4 11a6 6 0 0 0 12 0c0-3-1.6-4.8-2.8-6.2C16 8 15 9.5 13.8 9.5 15.2 6.5 13.5 3.6 12 2Z" fill="#fff" opacity=".95"/></svg>
+        <span style="font-family:var(--font-display);font-weight:700;color:#fff;font-size:.82rem;letter-spacing:.03em">NG</span>
       </div>
       <div>
-        <div class="brand-name">Leak Data Catalog</div>
-        <div class="brand-db">PROD_GDM_PROD_DB</div>
+        <div class="brand-name">National Grid</div>
+        <div class="brand-db">LEAK DATA CATALOG</div>
       </div>
     </div>
     <nav class="nav" aria-label="Catalog sections">
-      <button class="active" data-view="overview">
+      <button class="active" data-view="start">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-5"/></svg>
+        Start Here
+      </button>
+      <button data-view="overview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
         Overview
       </button>
@@ -338,6 +423,9 @@ mark{background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px}
         <input id="global-search" type="search" placeholder="Search datasets, columns, keys…" aria-label="Search datasets">
         <span class="kbd-hint">/</span>
       </div>
+      <button class="theme-btn" id="print-btn" aria-label="Export or print the catalog" title="Export / Print (opens print dialog — choose 'Save as PDF' to export)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>
+      </button>
       <button class="theme-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
         <svg id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
         <svg id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -346,8 +434,49 @@ mark{background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px}
 
     <div class="content" id="content">
 
+      <!-- ======== START HERE ======== -->
+      <section class="view active" id="view-start">
+        <p class="eyebrow">New to this data?</p>
+        <h2 class="h-display">Start Here</h2>
+        <p class="lede">This catalog documents the gas leak management data in <span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB</span> — what each table contains, how tables join, and where to find answers.</p>
+
+        <div class="steps3">
+          <div class="step3"><div class="st-n">1</div><h4>Find your table</h4><p>Start with a question below, browse the <strong>Data Explorer</strong>, or press <kbd>Ctrl</kbd>+<kbd>K</kbd> to jump anywhere by name.</p></div>
+          <div class="step3"><div class="st-n">2</div><h4>Read the card</h4><p>Every table card tells you its <em>grain</em> (what one row means), its keys, and its most useful columns — the three things you need before querying.</p></div>
+          <div class="step3"><div class="st-n">3</div><h4>Query it</h4><p>Copy the table name (or a starter query below) into your SQL tool. Two keys connect everything: <span class="mono" style="font-size:.85em">LEAK_ID</span> and <span class="mono" style="font-size:.85em">WO_NUM</span>.</p></div>
+        </div>
+
+        <div class="two-col" style="margin-top:6px">
+          <div class="card pad prose">
+            <h3 class="section-title">How the tables connect</h3>
+            <p>Almost every join in this mart uses one of two keys:</p>
+            <ul>
+              <li><span class="mono" style="font-size:.85em"><strong>LEAK_ID</strong></span> — connects a leak (<span class="mono" style="font-size:.85em">DT_LEAKS</span>) to its readings, grade history, extent, status history, and work orders.</li>
+              <li><span class="mono" style="font-size:.85em"><strong>WO_NUM</strong></span> — connects a work order (<span class="mono" style="font-size:.85em">DT_LEAK_WORKORDERS</span>) to its status history and its type-specific detail form (repair, monitoring, emergency, surveillance).</li>
+            </ul>
+            <p>See the <button class="obj-link" data-goview="model" style="margin:0">Data Model</button> for the full picture drawn as a map.</p>
+            <div class="sql-block"><button class="sql-copy" data-copytext="SELECT l.LEAK_ID, l.GRADE, l.STATUS, wo.WO_NUM, wo.WO_STATUS
+FROM DT_LEAKS l
+JOIN DT_LEAK_WORKORDERS wo ON wo.LEAK_ID = l.LEAK_ID
+WHERE l.STATUS &lt;&gt; 'CLOSED';">Copy</button><code><span class="sql-kw">SELECT</span> l.LEAK_ID, l.GRADE, l.STATUS, wo.WO_NUM, wo.WO_STATUS
+<span class="sql-kw">FROM</span> DT_LEAKS l
+<span class="sql-kw">JOIN</span> DT_LEAK_WORKORDERS wo <span class="sql-kw">ON</span> wo.LEAK_ID = l.LEAK_ID
+<span class="sql-kw">WHERE</span> l.STATUS &lt;&gt; 'CLOSED';</code></div>
+            <div class="sql-caveat">Example only — verify column names and status values against the live schema.</div>
+          </div>
+
+          <div class="card pad prose access-card">
+            <h3 class="section-title">Getting access & help</h3>
+            <p><strong>Access:</strong> request read access to <span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB</span> through your data platform team. <em>[Team: add your access-request link or Snowflake role name here.]</em></p>
+            <p><strong>Questions about the data:</strong> contact the data product owner. <em>[Team: add owner name / email / Teams channel here.]</em></p>
+            <p><strong>Found an error in this catalog?</strong> Descriptions are drafted from samples, not an official spec — corrections from people who know the source systems are very welcome.</p>
+            <p class="pill-note">Before using this data in anything official, read the draft caveats on the <button class="obj-link" data-goview="overview" style="margin:0">Overview</button> page.</p>
+          </div>
+        </div>
+      </section>
+
       <!-- ======== OVERVIEW ======== -->
-      <section class="view active" id="view-overview">
+      <section class="view" id="view-overview">
         <div class="banner" role="note">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
           <div><strong>Working draft.</strong> Sections were inferred from table/column names, 100-row samples, and general gas-utility familiarity — not an official spec. Anything tagged <em>Draft</em> needs a review pass from someone with source-system knowledge before this is treated as an official reference.</div>
@@ -536,10 +665,33 @@ mark{background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px}
             </table>
             <p class="pill-note" style="margin:10px 0 0">These values, plus the <span class="mono" style="font-size:.85em">MAXADMIN</span> change-by user, indicate an IBM Maximo-based source feeding this mart on a scheduled refresh (see <span class="mono" style="font-size:.85em">SOURCE_REFRESH_DT / NGMOD_DT</span>).</p>
           </div>
+          <div class="card pad ref-card" style="grid-column:1/-1">
+            <h3>Glossary — plain-English terms for newcomers</h3>
+            <dl class="gloss">
+              <dt>Grain</dt><dd>What one row in a table represents (one leak, one reading, one status change). Always check the grain before counting or joining.</dd>
+              <dt>Dynamic Table (DT_)</dt><dd>A base data table that refreshes automatically from the source system on a schedule.</dd>
+              <dt>View (VW_)</dt><dd>A computed result built from other tables — e.g. an aggregation like the monthly backlog counts.</dd>
+              <dt>Leak grade</dt><dd>The severity classification of a leak: Grade 1 (hazardous, act immediately), Grade 2/2A (potentially hazardous, scheduled), Grade 3 (non-hazardous, monitored).</dd>
+              <dt>Work order (WO)</dt><dd>A dispatched job — an emergency response, a monitoring visit, a repair, or an inspection. Each has a type-specific detail table.</dd>
+              <dt>Backlog</dt><dd>Open leaks that haven't been repaired yet — the number regulators track month over month.</dd>
+              <dt>Jurisdiction / OPCO</dt><dd>The regulatory region (UNY, NYC, LI, MA) and the operating company code (5210–5330) that owns the asset. See the OPCO table above.</dd>
+              <dt>Maximo</dt><dd>The IBM work-management system that appears to be the operational source of the work-order data (inferred from status codes).</dd>
+              <dt>LEAK_ID / WO_NUM</dt><dd>The two join keys that connect nearly everything: leaks to their detail, and work orders to theirs.</dd>
+              <dt>100-row sample</dt><dd>How this catalog was built: descriptions were inferred from a 100-row export of each object, not from an official data dictionary.</dd>
+            </dl>
+          </div>
         </div>
       </section>
 
     </div>
+  </div>
+</div>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-modal="true" aria-label="Quick navigation">
+  <div class="palette">
+    <input id="palette-input" type="text" placeholder="Jump to a table, view, or section…" autocomplete="off">
+    <div class="palette-list" id="palette-list"></div>
+    <div class="p-foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span><span style="margin-left:auto"><kbd>Ctrl</kbd>+<kbd>K</kbd> anywhere</span></div>
   </div>
 </div>
 
@@ -681,6 +833,69 @@ function relatedTo(name){
   EDGES.forEach(([a,b])=>{ if(a===name) rel.add(b); if(b===name) rel.add(a); });
   return [...rel];
 }
+
+/* Generic copy-to-clipboard for any [data-copytext] */
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-copytext]');
+  if(!b) return;
+  const text = b.dataset.copytext;
+  const done = ()=>{ const old = b.textContent; b.textContent='✓ Copied'; setTimeout(()=>b.textContent=old, 1400); };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(done); }
+  else { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} ta.remove(); done(); }
+});
+
+/* Section jump links inside prose */
+document.addEventListener('click', e=>{
+  const g = e.target.closest('[data-goview]');
+  if(g) showView(g.dataset.goview);
+});
+
+/* ================= Print / export ================= */
+document.getElementById('print-btn').addEventListener('click', ()=>{
+  document.querySelectorAll('.ds').forEach(c=>{ c.classList.add('open'); c.querySelector('.ds-head').setAttribute('aria-expanded','true'); });
+  window.print();
+});
+
+/* ================= Command palette ================= */
+const PALETTE_ITEMS = [
+  ...Object.entries({start:'Start Here', overview:'Overview', model:'Data Model', explorer:'Data Explorer', architecture:'Architecture', reference:'Reference'})
+    .map(([id,label])=>({kind:'sec', label, sub:'section', action:()=>showView(id)})),
+  ...DATASETS.map(d=>({kind:d.type==='View'?'vw':'tbl', label:d.name, sub:d.cols+' cols', action:()=>goToDataset(d.name)}))
+];
+const pBackdrop = document.getElementById('palette-backdrop');
+const pInput = document.getElementById('palette-input');
+const pList = document.getElementById('palette-list');
+let pFiltered = PALETTE_ITEMS, pIndex = 0;
+
+function renderPalette(){
+  const q = pInput.value.trim().toLowerCase();
+  pFiltered = PALETTE_ITEMS.filter(it=>it.label.toLowerCase().includes(q));
+  pIndex = Math.min(pIndex, Math.max(0, pFiltered.length-1));
+  pList.innerHTML = pFiltered.length ? pFiltered.map((it,i)=>{
+    const kindLbl = it.kind==='sec'?'SECTION':it.kind==='vw'?'VIEW':'TABLE';
+    const name = it.kind==='sec' ? esc(it.label) : `<span class="mono">${esc(it.label)}</span>`;
+    return `<button class="p-item${i===pIndex?' hover':''}" data-i="${i}">
+      <span class="p-kind ${it.kind}">${kindLbl}</span>
+      <span class="p-name">${name}</span>
+      <span class="p-sub">${esc(it.sub)}</span>
+    </button>`;
+  }).join('') : `<div class="p-empty">Nothing matches "${esc(pInput.value)}"</div>`;
+}
+function openPalette(){ pBackdrop.classList.add('open'); pInput.value=''; pIndex=0; renderPalette(); pInput.focus(); }
+function closePalette(){ pBackdrop.classList.remove('open'); }
+function choosePalette(i){
+  const it = pFiltered[i]; if(!it) return;
+  closePalette(); it.action();
+}
+pInput.addEventListener('input', ()=>{ pIndex=0; renderPalette(); });
+pInput.addEventListener('keydown', e=>{
+  if(e.key==='ArrowDown'){ e.preventDefault(); pIndex=Math.min(pIndex+1, pFiltered.length-1); renderPalette(); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); pIndex=Math.max(pIndex-1, 0); renderPalette(); }
+  else if(e.key==='Enter'){ e.preventDefault(); choosePalette(pIndex); }
+  else if(e.key==='Escape'){ closePalette(); }
+});
+pList.addEventListener('click', e=>{ const b=e.target.closest('.p-item'); if(b) choosePalette(+b.dataset.i); });
+pBackdrop.addEventListener('click', e=>{ if(e.target===pBackdrop) closePalette(); });
 
 /* ================= Theme toggle ================= */
 const themeBtn = document.getElementById('theme-toggle');
@@ -923,9 +1138,9 @@ document.getElementById('filter-bar').addEventListener('click',e=>{
 
 /* ================= Nav, hash routing, search ================= */
 const navBtns = document.querySelectorAll('.nav button');
-const titles = {overview:'Overview', model:'Data Model', explorer:'Data Explorer', architecture:'Architecture', reference:'Reference'};
+const titles = {start:'Start Here', overview:'Overview', model:'Data Model', explorer:'Data Explorer', architecture:'Architecture', reference:'Reference'};
 function showView(v, pushHash=true){
-  if(!titles[v]) v='overview';
+  if(!titles[v]) v='start';
   navBtns.forEach(b=>b.classList.toggle('active', b.dataset.view===v));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active', s.id==='view-'+v));
   document.getElementById('topbar-title').textContent = titles[v];
@@ -943,6 +1158,8 @@ searchInput.addEventListener('input',()=>{
   renderExplorer();
 });
 document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); pBackdrop.classList.contains('open') ? closePalette() : openPalette(); return; }
+  if(e.key==='Escape' && pBackdrop.classList.contains('open')){ closePalette(); return; }
   if(e.key==='/' && document.activeElement!==searchInput && !/input|textarea/i.test(document.activeElement.tagName)){
     e.preventDefault(); searchInput.focus();
   }
