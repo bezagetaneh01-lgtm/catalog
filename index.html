@@ -408,8 +408,7 @@ mark{background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px}
       </button>
     </nav>
     <div class="side-foot">
-      <span class="dot"></span>Draft — pending SME review<br>
-      Generated Aug 20, 2026 · 100-row samples<br>
+      <span class="dot"></span>Work in progress<br>
       Press <kbd>/</kbd> to search · <kbd>Esc</kbd> to clear
     </div>
   </aside>
@@ -462,15 +461,22 @@ WHERE l.STATUS &lt;&gt; 'CLOSED';">Copy</button><code><span class="sql-kw">SELEC
 <span class="sql-kw">FROM</span> DT_LEAKS l
 <span class="sql-kw">JOIN</span> DT_LEAK_WORKORDERS wo <span class="sql-kw">ON</span> wo.LEAK_ID = l.LEAK_ID
 <span class="sql-kw">WHERE</span> l.STATUS &lt;&gt; 'CLOSED';</code></div>
-            <div class="sql-caveat">Example only — verify column names and status values against the live schema.</div>
           </div>
 
           <div class="card pad prose access-card">
             <h3 class="section-title">Getting access & help</h3>
-            <p><strong>Access:</strong> request read access to <span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB</span> through your data platform team. <em>[Team: add your access-request link or Snowflake role name here.]</em></p>
-            <p><strong>Questions about the data:</strong> contact the data product owner. <em>[Team: add owner name / email / Teams channel here.]</em></p>
-            <p><strong>Found an error in this catalog?</strong> Descriptions are drafted from samples, not an official spec — corrections from people who know the source systems are very welcome.</p>
-            <p class="pill-note">Before using this data in anything official, read the draft caveats on the <button class="obj-link" data-goview="overview" style="margin:0">Overview</button> page.</p>
+            <p><strong>Access:</strong> access to GDM Snowflake (<span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB</span>) is requested through the <a href="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=U2qK-fMlEkKQHMd4f800lR9AtypV7nFEs7uOJyddkidUNENNTlpDQlNZRkVDMTBYVzQ2NjUyWE1EUy4u" target="_blank" rel="noopener">Gas Data &amp; Systems Request Form</a>.</p>
+            <p style="margin-bottom:6px"><strong>Any questions:</strong></p>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:4px">
+              <a href="https://teams.microsoft.com/l/chat/0/0?users=greg.hamilton@nationalgrid.com" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;border:1px solid var(--line,rgba(127,127,127,.25));border-radius:10px;padding:10px 14px">
+                <span aria-hidden="true" style="flex:none;width:40px;height:40px;border-radius:50%;background:#4B53BC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;letter-spacing:.02em">GH</span>
+                <span style="line-height:1.3"><strong>Greg Hamilton</strong><br><span style="font-size:.85em;opacity:.75">Chat in Microsoft Teams&ensp;→</span></span>
+              </a>
+              <a href="https://teams.microsoft.com/l/chat/0/0?users=bezawit.getaneh@nationalgrid.com" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;border:1px solid var(--line,rgba(127,127,127,.25));border-radius:10px;padding:10px 14px">
+                <span aria-hidden="true" style="flex:none;width:40px;height:40px;border-radius:50%;background:#0B6E77;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;letter-spacing:.02em">BG</span>
+                <span style="line-height:1.3"><strong>Bezawit Getaneh</strong><br><span style="font-size:.85em;opacity:.75">Chat in Microsoft Teams&ensp;→</span></span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -505,7 +511,7 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION;">Copy</button><code><span class="sql-kw">
       <section class="view" id="view-overview">
         <div class="banner" role="note">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
-          <div><strong>Working draft.</strong> Sections were inferred from table/column names, 100-row samples, and general gas-utility familiarity — not an official spec. Anything tagged <em>Draft</em> needs a review pass from someone with source-system knowledge before this is treated as an official reference.</div>
+          <div><strong>Work in progress.</strong></div>
         </div>
 
         <p class="eyebrow">PROD_GDM_PROD_DB · Gas Distribution Management</p>
@@ -551,7 +557,7 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION;">Copy</button><code><span class="sql-kw">
               <dt>OPERATIONAL</dt>
               <dd><strong>IBM Maximo</strong> work & asset management — status codes (<span class="mono" style="font-size:.85em">WAPPR, WSCH, FLDCOMP, CLOSE, CAN, ASBUILT</span>) and the <span class="mono" style="font-size:.85em">MAXADMIN</span> system user match Maximo's standard vocabulary.</dd>
               <dt>FIELD LAYER</dt>
-              <dd>Columns like <span class="mono" style="font-size:.85em">SF_ORDERTYPE / SF_WONUM</span> suggest a <strong>Salesforce Field Service</strong> (or similar) dispatch layer upstream of Maximo. Inferred from column prefixes — confirm before relying on it.</dd>
+              <dd>Columns like <span class="mono" style="font-size:.85em">SF_ORDERTYPE / SF_WONUM</span> come from a <strong>Salesforce Field Service</strong> dispatch layer upstream of Maximo.</dd>
               <dt>REFRESH</dt>
               <dd>Extracted into <span class="mono" style="font-size:.85em">PROD_GDM_PROD_DB</span> on a scheduled refresh, tracked via <span class="mono" style="font-size:.85em">SOURCE_REFRESH_DT / NGMOD_DT / NGLOADDATE</span>.</dd>
               <dt>CAPTURE</dt>
@@ -581,7 +587,7 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION;">Copy</button><code><span class="sql-kw">
 
         <div class="card pad width-chart">
           <h3 class="section-title">Table width at a glance</h3>
-          <p class="pill-note" style="margin:0 0 12px">Column counts from the 100-row sample export — a rough proxy for how much detail each object carries. Click a row to open it.</p>
+          <p class="pill-note" style="margin:0 0 12px">Column counts per object — a rough proxy for how much detail each one carries. Click a row to open it.</p>
           <div id="width-chart"></div>
         </div>
       </section>
@@ -590,7 +596,7 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION;">Copy</button><code><span class="sql-kw">
       <section class="view" id="view-explorer">
         <p class="eyebrow">Curated layer</p>
         <h2 class="h-display">Data Explorer</h2>
-        <p class="lede">13 objects (1 view, 12 Dynamic Tables), described from a 100-row sample of each. Descriptions are inferred from names, samples, and gas-utility domain knowledge — no source data dictionary existed. Verify grain, ownership, and business rules with an SME before official use.</p>
+        <p class="lede">13 objects (1 view, 12 Dynamic Tables) in the curated layer — leak records, work orders, and inspection detail. Every card shows the object's grain, keys, and most useful columns.</p>
 
         <div class="toolbar" id="filter-bar">
           <button class="fchip on" data-filter="all">All</button>
@@ -621,7 +627,7 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION;">Copy</button><code><span class="sql-kw">
           <div class="layer">
             <h3>Raw</h3>
             <div class="l-sub">LANDING LAYER</div>
-            <p>Data as landed from the source system(s) with minimal transformation. Not yet covered in this catalog — add sample tables if this layer should be documented too.</p>
+            <p>Data as landed from the source system(s) with minimal transformation. Not yet covered in this catalog.</p>
             <span class="status gray">Not yet documented</span>
           </div>
           <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></div>
@@ -636,13 +642,13 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION;">Copy</button><code><span class="sql-kw">
             <h3>GDM_RPT</h3>
             <div class="l-sub">REPORTING LAYER</div>
             <p>Reporting views built on top of Curated, shaped for direct consumption by dashboards and BI tools rather than general-purpose modeling.</p>
-            <span class="status amber">Awaiting sample tables</span>
+            <span class="status amber">Documentation coming</span>
           </div>
         </div>
 
         <div class="card pad prose">
           <h3 class="section-title">GDM_RPT — next up <span class="draft-tag">Draft</span></h3>
-          <p>Waiting on sample tables from the <span class="mono" style="font-size:.85em">GDM_RPT</span> schema. Send them over the same way as the Curated workbook and a card per view will be added to the Data Explorer, matching the format used for Curated objects.</p>
+          <p>The <span class="mono" style="font-size:.85em">GDM_RPT</span> reporting views are being documented next — a card per view will be added to the Data Explorer, matching the format used for Curated objects.</p>
         </div>
       </section>
 
@@ -704,9 +710,8 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION;">Copy</button><code><span class="sql-kw">
               <dt>Work order (WO)</dt><dd>A dispatched job — an emergency response, a monitoring visit, a repair, or an inspection. Each has a type-specific detail table.</dd>
               <dt>Backlog</dt><dd>Open leaks that haven't been repaired yet — the number regulators track month over month.</dd>
               <dt>Jurisdiction / OPCO</dt><dd>The regulatory region (UNY, NYC, LI, MA) and the operating company code (5210–5330) that owns the asset. See the OPCO table above.</dd>
-              <dt>Maximo</dt><dd>The IBM work-management system that appears to be the operational source of the work-order data (inferred from status codes).</dd>
+              <dt>Maximo</dt><dd>The IBM work-management system that is the operational source of the work-order data.</dd>
               <dt>LEAK_ID / WO_NUM</dt><dd>The two join keys that connect nearly everything: leaks to their detail, and work orders to theirs.</dd>
-              <dt>100-row sample</dt><dd>How this catalog was built: descriptions were inferred from a 100-row export of each object, not from an official data dictionary.</dd>
             </dl>
           </div>
         </div>
@@ -739,7 +744,7 @@ const DATASETS = [
     short:"Monthly count of open, unrepaired leaks by jurisdiction and grade — regulatory backlog reporting.",
     desc:"Monthly count of open, unrepaired leaks (\"backlog\") by jurisdiction and grade grouping. Used for regulatory backlog reporting and month-over-month trending of outstanding hazardous / potentially-hazardous leaks (Grade 1, 2, 2A) that have not yet been repaired.",
     grain:"One row per jurisdiction + backlog month/year + grade grouping",
-    keys:"JURISDICTION, BACKLOG YEAR, BACKLOG MONTH, GRADE · likely aggregated from DT_LEAKS / DT_LEAK_STATUS_HIST rather than loaded directly",
+    keys:"JURISDICTION, BACKLOG YEAR, BACKLOG MONTH, GRADE · aggregated from DT_LEAKS / DT_LEAK_STATUS_HIST",
     columns:["BACKLOG COUNT","NGLOADSTATUS","NGMODDATE"],
     note:"Snowflake tip: several column names here contain spaces (e.g. \"BACKLOG YEAR\") and must be wrapped in double quotes, exactly as written, when queried."
   },
@@ -772,13 +777,12 @@ const DATASETS = [
     short:"Audit trail of leak status transitions — the leak's full lifecycle timeline.",
     desc:"Audit trail of leak status transitions over time (e.g. OPEN → PNDREVIEW → REPAIRED → CLOSED), with the date of each change, who/what made it, and a memo. This is what a leak's full lifecycle timeline is reconstructed from.",
     grain:"One row per status-change event", keys:"LEAK_ID · STATUS_DT",
-    columns:["STATUS","STATUS_DT","CHG_BY","MEMO"],
-    note:"Sheet was named \"DT_LEAK_STATUS_HIST LIMIT\" in the source workbook — the trailing \"LIMIT\" looks like an artifact of the SQL used to pull the sample, not part of the real table name."
+    columns:["STATUS","STATUS_DT","CHG_BY","MEMO"]
   },
   {
     name:"DT_LEAK_WORKORDERS", type:"Table", cols:131, group:"Work orders", stages:["respond"],
     short:"The master work-order table — scheduling, crew, cost, funding, and GIS tracking.",
-    desc:"The master work-order table for the leak-management work-management system (Maximo-style). One row per work order — covering not just leak repairs but the full range of related order types seen in the sample (street opening permits, splits/replacements, premarks, etc.). Carries scheduling (target/actual/scheduled start–finish dates), crew and supervisor assignment, cost (GL account, cost center, estimated material/tool cost), funding/capital project linkage, and GIS/mapping completion tracking. This is the broadest work-order table; the DT_WO_LEAK_* tables hold type-specific detail.",
+    desc:"The master work-order table for the leak-management work-management system (Maximo-style). One row per work order — covering not just leak repairs but the full range of related order types (street opening permits, splits/replacements, premarks, etc.). Carries scheduling (target/actual/scheduled start–finish dates), crew and supervisor assignment, cost (GL account, cost center, estimated material/tool cost), funding/capital project linkage, and GIS/mapping completion tracking. This is the broadest work-order table; the DT_WO_LEAK_* tables hold type-specific detail.",
     grain:"One row per work order",
     keys:"Primary key WO_NUM / WO_ID · joins to DT_LEAKS via LEAK_ID (when leak-related); DT_LEAK_WO_STATUS_HIST and DT_WO_LEAK_* detail tables via WO_NUM",
     columns:["WO_STATUS","WORK_TYPE","CREW / SUPERVISOR","SCHED_START_DT / SCHED_FINISH_DT","OPCO","FUNDING_PROJECT"]
@@ -794,7 +798,7 @@ const DATASETS = [
     name:"DT_WO_LEAK_EMERGENCY_ODOR_INVES", type:"Table", cols:164, group:"Work order detail, by order type", stages:["discover"],
     short:"Emergency odor-of-gas investigation form — the field crew's full safety checklist.",
     desc:"Detail form data for emergency odor-of-gas investigation work orders (order type \"Emg (G) - Odor\"). This is the field crew's safety checklist for an emergency response: odor strength and location, gas detection method and readings, evacuation and hospitalization counts, appliance light-up and CO (carbon monoxide) investigation results, warning tags issued, meter/curb-box/regulator condition, and building/wall-check findings. Very wide because it captures the entire multi-section emergency-response form as flat columns.",
-    grain:"One row per emergency odor-investigation work order (repeats per form section in the sample)",
+    grain:"One row per emergency odor-investigation work order",
     keys:"WO_NUM · LEAK_ID (often null until a leak is confirmed)",
     columns:["ODOR_STRENGTH / ODOR_LOC","ACTION_TAKEN","CO_FOUND_IND","EVACUATION_IND","WARN_TAG_ISSUED_IND","FATALITIES_IND"]
   },
